@@ -1,0 +1,113 @@
+\begin{thebibliography}{10}
+
+\bibitem{Bais2020}
+Abha~S Bais and Dennis Kostka.
+\newblock scds: computational annotation of doublets in single-cell {RNA}
+  sequencing data.
+\newblock {\em Bioinformatics}, 36(4):1150--1158, February 2020.
+
+\bibitem{Brown2024}
+Daniel~V Brown, Casey J~A Anttila, Ling Ling, Patrick Grave, Tracey~M Baldwin,
+  Ryan Munnings, Anthony~J Farchione, Vanessa~L Bryant, Amelia Dunstone,
+  Christine Biben, Samir Taoudi, Tom~S Weber, Shalin~H Naik, Anthony Hadla,
+  Holly~E Barker, Cassandra~J Vandenberg, Genevieve Dall, Clare~L Scott,
+  Zachery Moore, James~R Whittle, Saskia Freytag, Sarah~A Best, Anthony~T
+  Papenfuss, Sam W~Z Olechnowicz, Sarah~E MacRaild, Stephen Wilcox, Peter~F
+  Hickey, Daniela Amann-Zalcenstein, and Rory Bowden.
+\newblock A risk-reward examination of sample multiplexing reagents for single
+  cell {RNA-Seq}.
+\newblock {\em Genomics}, 116(2):110793, March 2024.
+
+\bibitem{Curion2024}
+Fabiola Curion, Xichen Wu, Lukas Heumos, Mylene Mariana~Gonzales André,
+  Lennard Halle, Matiss Ozols, Melissa Grant-Peters, Charlotte Rich-Griffin,
+  Hing-Yuen Yeung, Calliope~A Dendrou, Herbert~B Schiller, and Fabian~J Theis.
+\newblock Hadge: A comprehensive pipeline for donor deconvolution in
+  single-cell studies.
+\newblock {\em Genome Biol.}, 25(1):109, April 2024.
+
+\bibitem{10X_flex_protocol}
+10X Genomics.
+\newblock {\em Chromium Fixed RNA Profiling Reagent Kits for Multiplexed
+  Samples}.
+\newblock 10X Genomics, Pleasanton, CA, September 2023.
+\newblock Revision E, available at
+  \url{https://www.10xgenomics.com/support/single-cell-gene-expression-flex/documentation/steps/library-prep/chromium-single-cell-gene-expression-flex-reagent-kits-for-multiplexed-samples}.
+
+\bibitem{Germain2021}
+Pierre-Luc Germain, Aaron Lun, Carlos Garcia~Meixide, Will Macnair, and Mark~D
+  Robinson.
+\newblock Doublet identification in single-cell sequencing data using
+  {\textit{scdblfinder}}.
+\newblock {\em F1000Res.}, 10:979, September 2021.
+
+\bibitem{Griffiths2018}
+Jonathan~A Griffiths, Arianne~C Richard, Karsten Bach, Aaron T~L Lun, and
+  John~C Marioni.
+\newblock Detection and removal of barcode swapping in single-cell {RNA-seq}
+  data.
+\newblock {\em Nat. Commun.}, 9(1):2667, July 2018.
+
+\bibitem{Hao2021}
+Yuhan Hao, Stephanie Hao, Erica Andersen-Nissen, William~M Mauck, 3rd, Shiwei
+  Zheng, Andrew Butler, Maddie~J Lee, Aaron~J Wilk, Charlotte Darby, Michael
+  Zager, Paul Hoffman, Marlon Stoeckius, Efthymia Papalexi, Eleni~P Mimitou,
+  Jaison Jain, Avi Srivastava, Tim Stuart, Lamar~M Fleming, Bertrand Yeung,
+  Angela~J Rogers, Juliana~M McElrath, Catherine~A Blish, Raphael Gottardo,
+  Peter Smibert, and Rahul Satija.
+\newblock Integrated analysis of multimodal single-cell data.
+\newblock {\em Cell}, 184(13):3573--3587.e29, June 2021.
+
+\bibitem{Howitt2023}
+George Howitt, Yuzhou Feng, Lucas Tobar, Dane Vassiliadis, Peter Hickey,
+  Mark A Dawson, Sarath Ranganathan, Shivanthan Shanthikumar, Melanie Neeland,
+  Jovana Maksimovic, and Alicia Oshlack.
+\newblock {Benchmarking single-cell hashtag oligo demultiplexing methods}.
+\newblock {\em NAR Genomics and Bioinformatics}, 5(4):lqad086, 10 2023.
+
+\bibitem{Lun2019}
+Aaron T~L Lun, Samantha Riesenfeld, Tallulah Andrews, The~Phuong Dao, Tomas
+  Gomes, {participants in the 1st Human Cell Atlas Jamboree}, and John~C
+  Marioni.
+\newblock {EmptyDrops}: distinguishing cells from empty droplets in
+  droplet-based single-cell {RNA} sequencing data.
+\newblock {\em Genome Biol.}, 20(1):63, March 2019.
+
+\bibitem{Neavin2024}
+Drew Neavin, Anne Senabouth, Himanshi Arora, Jimmy Tsz~Hang Lee, Aida
+  Ripoll-Cladellas, {sc-eQTLGen Consortium}, Lude Franke, Shyam Prabhakar,
+  Chun~Jimmie Ye, Davis~J McCarthy, Marta Mel{\'e}, Martin Hemberg, and
+  Joseph~E Powell.
+\newblock Demuxafy: improvement in droplet assignment by integrating multiple
+  single-cell demultiplexing and doublet detection methods.
+\newblock {\em Genome Biol.}, 25(1):94, April 2024.
+
+\bibitem{Xi2021}
+Nan~Miles Xi and Jingyi~Jessica Li.
+\newblock Benchmarking computational {Doublet-Detection} methods for
+  {Single-Cell} {RNA} sequencing data.
+\newblock {\em Cell Syst}, 12(2):176--194.e6, February 2021.
+
+\bibitem{Xiong2022}
+Ke-Xu Xiong, Han-Lin Zhou, Cong Lin, Jian-Hua Yin, Karsten Kristiansen,
+  Huan-Ming Yang, and Gui-Bo Li.
+\newblock Chord: an ensemble machine learning algorithm to identify doublets in
+  single-cell {RNA} sequencing data.
+\newblock {\em Commun Biol}, 5(1):510, May 2022.
+
+\bibitem{Yang2020}
+Shiyi Yang, Sean~E Corbett, Yusuke Koga, Zhe Wang, W~Evan Johnson, Masanao
+  Yajima, and Joshua~D Campbell.
+\newblock Decontamination of ambient {RNA} in single-cell {RNA-seq} with
+  {DecontX}.
+\newblock {\em Genome Biol.}, 21(1):57, March 2020.
+
+\bibitem{Zhang2024}
+Ziyang Zhang, Madeline~E Melzer, Keerthana~M Arun, Hanxiao Sun, Carl-Johan
+  Eriksson, Itai Fabian, Sagi Shaashua, Karun Kiani, Yaara Oren, and Yogesh
+  Goyal.
+\newblock Synthetic {DNA} barcodes identify singlets in {scRNA-seq} datasets
+  and evaluate doublet algorithms.
+\newblock {\em Cell Genom}, 4(7):100592, July 2024.
+
+\end{thebibliography}

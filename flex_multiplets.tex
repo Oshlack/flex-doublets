@@ -1,0 +1,497 @@
+%%
+%% Copyright 2022 OXFORD UNIVERSITY PRESS
+%%
+%% This file is part of the 'oup-authoring-template Bundle'.
+%% ---------------------------------------------
+%%
+%% It may be distributed under the conditions of the LaTeX Project Public
+%% License, either version 1.2 of this license or (at your option) any
+%% later version.  The latest version of this license is in
+%%    http://www.latex-project.org/lppl.txt
+%% and version 1.2 or later is part of all distributions of LaTeX
+%% version 1999/12/01 or later.
+%%
+%% The list of all files belonging to the 'oup-authoring-template Bundle' is
+%% given in the file `manifest.txt'.
+%%
+%% Template article for OXFORD UNIVERSITY PRESS's document class `oup-authoring-template'
+%% with bibliographic references
+%%
+
+%%%CONTEMPORARY%%%
+%\documentclass[unnumsec,webpdf,contemporary,large]{oup-authoring-template}%
+%\documentclass[unnumsec,webpdf,contemporary,large,namedate]{oup-authoring-template}% uncomment this line for author year citations and comment the above
+%\documentclass[unnumsec,webpdf,contemporary,medium]{oup-authoring-template}
+%\documentclass[unnumsec,webpdf,contemporary,small]{oup-authoring-template}
+
+%%%MODERN%%%
+\documentclass[unnumsec,webpdf,modern,large]{oup-authoring-template}
+%\documentclass[unnumsec,webpdf,modern,large,namedate]{oup-authoring-template}% uncomment this line for author year citations and comment the above
+%\documentclass[unnumsec,webpdf,modern,medium]{oup-authoring-template}
+%\documentclass[unnumsec,webpdf,modern,small]{oup-authoring-template}
+
+%%%TRADITIONAL%%%
+%\documentclass[unnumsec,webpdf,traditional,large]{oup-authoring-template}
+%\documentclass[unnumsec,webpdf,traditional,large,namedate]{oup-authoring-template}% uncomment this line for author year citations and comment the above
+%\documentclass[unnumsec,namedate,webpdf,traditional,medium]{oup-authoring-template}
+%\documentclass[namedate,webpdf,traditional,small]{oup-authoring-template}
+
+%\onecolumn % for one column layouts
+
+%\usepackage{showframe}
+\usepackage{graphicx}	% Including figure files
+\usepackage{amsmath}	% Advanced maths commands
+\usepackage{amssymb}	% Extra maths symbols
+\usepackage{mathtools}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{caption}
+%\usepackage{subcaption}
+\captionsetup{compatibility=false}
+\usepackage{gensymb}
+%\usepackage{enumitem}
+\usepackage{newtxtext,newtxmath}
+\usepackage{booktabs}
+
+% line numbers
+%\usepackage[mathlines, switch]{lineno}
+%\usepackage[right]{lineno}
+
+\begin{document}
+	
+	\journaltitle{Journal Title Here}
+	\DOI{DOI HERE}
+	\copyrightyear{2024}
+	\pubyear{2024}
+	\access{Advance Access Publication Date: Day Month Year}
+	\appnotes{Paper}
+	
+	\firstpage{1}
+	
+	%\subtitle{Subject Section}
+	
+	\title[Finding multiplets]{More cells, more doublets in sample-barcoded single-cell data}
+	
+	\author[1, 2]{George Howitt}
+	\author[1, 2]{Gunjan Dixit}
+	\author[1,2]{Rotem Aharon}
+	\author[1]{Victoria Streeton-Cook}
+	\author[3,4,5]{Shivanthan Shanthikumar}
+	\author[3,4,5]{Sarath Ranganathan}
+	\author[3,5]{Melanie Neeland}
+	\author[1, 2]{Jovana Maksimovic}
+	\author[1, 2, 6,$\ast$]{Alicia Oshlack}
+	
+	\authormark{Howitt et al.}
+	
+	\address[1]{Computational Biology Program, Peter MacCallum Cancer Centre, Parkville, VIC, Australia}
+	\address[2]{Sir Peter MacCallum Department of Oncology, University of Melbourne, Parkville, VIC, Australia}
+	\address[3]{Respiratory Diseases, Murdoch Children’s Research Institute, Parkville, VIC, Australia}
+	\address[4]{Respiratory and Sleep Medicine, Royal Children’s Hospital, Parkville, VIC, Australia}
+	\address[5]{Department of Paediatrics, University of Melbourne, Parkville, VIC, Australia}
+	\address[6]{School of Mathematics and Statistics, University of Melbourne, Parkville, VIC, Australia}
+		
+	\corresp[$\ast$]{alicia.oshlack@petermac.org}
+		
+	\received{Date}{0}{Year}
+	\revised{Date}{0}{Year}
+	\accepted{Date}{0}{Year}
+	
+	%\editor{Associate Editor: Name}
+	
+	%\abstract{
+		%\textbf{Motivation:} .\\
+		%\textbf{Results:} .\\
+		%\textbf{Availability:} .\\
+		%\textbf{Contact:} \href{name@email.com}{name@email.com}\\
+		%\textbf{Supplementary information:} Supplementary data are available at \textit{Journal Name}
+		%online.}
+	
+	\abstract{
+		Sample barcoding allows deconvolution of multiplets in multiplexed droplet-based single-cell RNA-sequencing experiments. 
+		However, this is only possible when each cell comes from a different sample. As the number of cells in a droplet increases, the probability of two or more cells coming from the same sample increases rapidly. 
+		We show that the number of these unresolvable multiplets is greater than previously estimated for the 10X Flex scRNA-seq protocol, and provide a formula for estimating the fraction of multiplets in a data set given a measured average droplet occupancy and number of unique samples in a pool. 
+		We also show that existing doublet detection tools should be applied to Flex data to identify these multiplets, and demonstrate that filtering out barcodes identified by these tools improves downstream analysis.		 	
+		}
+	%\keywords{}
+	
+		\maketitle
+	
+		\section{Introduction}
+	\label{sec:introduction}
+	
+	As single-cell RNA-sequencing (scRNA-seq) experiments grow in scale, performing separate captures for individual samples becomes prohibitively expensive. 
+	Pooling multiple samples in a single experiment both reduces cost and minimises batch effects, but introduces a new problem – how to associate individual cells with their sample of origin. 
+	A common method involves tagging the samples with either antibody or lipid-linked unique oligo barcodes prior to pooling. 
+	These ``hashtag'' oligos attach to either proteins or lipids on the cell surface and can be sequenced along with the gene expression, and various methods have been developed to identify the sample of origin from the expression counts of the hashtags 
+	\citep{Howitt2023}.
+	However, hashtag-based multiplexing has several drawbacks. 
+	Firstly, tagging introduces an additional step into the sample preparation workflow, and may be more challenging for certain tissue types. 
+	Poor staining can cause many cells to be unidentifiable, even when the underlying RNA expression data is high quality 
+	\citep{Brown2024}. 
+	Secondly, demultiplexing hashtag counts is a challenging computational problem, and the number of cells that can be confidently assigned samples is dependent on the choice of demultiplexing software, especially for poor quality hashtagging 
+	\citep{Howitt2023}.
+	
+	In droplet-based scRNA-seq protocols, cells are encapsulated within droplets which contain oligo barcoded beads that hybridise to each RNA molecule in the cell. 
+	This allows for the allocation of reads to droplets, and, assuming each droplet contains either zero or one cell, each read can be associated with a single cell. 
+	If droplets contain two or more cells (called doublets, or more generally multiplets), the RNA expression from all the cells is pooled together in the expression counts matrix, creating artifacts which may be erroneously identified as novel or transitional cell types. 
+	Throughout this paper, we use the term ``doublet'' to refer to any droplet containing $\geq 2$ cells.
+	While multiplets can be identified based on their  RNA expression profiles or using hashtags, they must be discarded from any downstream analysis
+	\citep{Neavin2024}.
+	Therefore, excessive numbers of multiplets are a major concern in droplet-based scRNA-seq experiments, particularly as the main approach for  avoiding them is to reduce the capture throughput, thereby producing many more empty than cell-containing droplets, which in turn increases costs.
+	
+	The Flex protocol from 10X Genomics addresses both of the above issues by using barcoded gene-specific probes that hybridise to individual RNA molecules in the cell. 
+	These barcodes can include an oligo that identifies a specific sample, with available kits containing 4 and 16 unique sample barcodes. 
+	The uniquely barcoded gene probes are added to each sample prior to pooling. 
+	Probe hybridisation is then followed by encapsulation within droplets containing a GEM (Gel beads-in-emulsion) bead similar to other 10X droplet-based protocols. 
+	After sequencing, each read then includes a barcode from both the sample of origin as well as the droplet, allowing immediate demultiplexing of pooled samples and resolution of multiplets from distinct samples within the same droplet. 
+	This removes the need for separate hashtag-staining and demultiplexing steps in the scRNA-seq workflow, and the resolution of multiplets allows for higher throughput in the library preparation stage. 
+	Consequently, according to the manufacturer, up to 128,000 cells from up to 16 samples can be run on a single lane of a Chromium X instrument 
+	\citep{10X_flex_protocol}. 
+	
+	However, while cells from different samples in the same droplet can be resolved with Flex, cells from the same sample remain unresolvable, and the number of these increases steeply with the occupancy of droplets. 
+	Here we estimate the number of multiplets expected in a Flex experiment and demonstrate that the number of multiplets found in real Flex data is significantly higher than initially expected. 
+	This is analogous to the ”birthday paradox” in classical probability, where the probability of two people in a room sharing the same birthday increases faster than expected by intuition, as the number of people in the room increases.
+	
+	%This paper is organized as follows.
+	%In section \ref{sec:methods}, we show how the unresolvable fraction of cells within droplets grows steeply as a function of the number of cells within a droplet, and provide a formula to compute the expected proportion of unresolvable cells within an experiment. 
+	
+	%We then test the performance of existing doublet-finding tools on multiple Flex data sets in section \ref{sec:results}.
+	%Finally, we describe a pre-processing workflow for Flex data that incorporates multiplet detection and removal. 
+	 	
+	\section{Results}
+	\label{sec:results}
+	
+	\subsection{Flex data sets}
+	\label{subsec: data}
+	
+	We perform our analysis using two data sets acquired from ten 16-plex Flex runs. 
+	The first data set, the earlyAIR data set, comes from an ongoing study to create a single-cell atlas of the paediatric airway, and comprises nine 16- plex batches from five tissue types, comprising both solid and liquid tissues from healthy donors. 
+	Some donors provided multiple tissues, and the batches contain between 25,486 and 139,926 cells after pre-processing (see \textbf{Methods}). 
+	The second data set, the PBMC data set, comprises 16 replicates of peripheral blood mononuclear cells taken from a healthy donor and is publicly available from 10X Genomics (see \textbf{Data availability}).  
+	The PBMC data set contains 135,785 cells after pre-processing and filtering.
+	%\textit{4-plex data sets not especially useful as most of the public ones have around the same number of cells}.
+	
+	\subsection{Testing doublet finders with known multiplets}
+
+	Tests of doublet-finding methods have to date relied upon a ground truth determined from alternative experiments, such as genotype information 
+	\citep{Neavin2024}, hashtag-based demultiplexing \citep{Curion2024}, DNA barcoding
+	\citep{Zhang2024}, or synthetic data \citep{Xi2021}.
+	
+	
+	Flex provides a novel means of testing doublet finding directly from sequencing. 
+	In a Flex experiment, many droplets contain multiple cells and cell calling is performed separately for each sample barcode. 
+	This means the initial step in a standard analysis is to separate reads based on their combined droplet and sample barcode and then call cells or empty “droplets” based on the data separated by samples. 
+	A droplet/sample combination may look empty even when there is a cell from a different sample in the same droplet. 
+	The resulting counts matrix has cells labelled by both the droplet barcode and sample barcode.
+	Aggregating the counts for each droplet across the sample barcodes creates a droplet-level counts matrix analogous to 3’ scRNA-seq experiments. 
+	Since the number of cells (from unique samples) called by CellRanger in each droplet is known, the droplet-level counts matrix provides a ground truth data set for testing doublet finders: droplets with only one cell are singlets and droplets with two or more cells are doublets. 
+	Note that we do not intend this section as a comprehensive benchmark of doublet-finding methods, which may be found in 
+	\citep{Neavin2024}.
+	Instead, we use two of the best-performing packages with low computational overhead recommended in 
+	\citep{Neavin2024}:
+	scds 
+	\citep{Bais2020}
+	and scDblFinder 
+	\citep{Germain2021}
+	and see which performs best on our Flex data sets. 
+	scds has two methods for doublet detection, one based on co-expression and another based on binary classification, as well as a hybrid classifier that combines both methods. 
+	We use all approaches and some details of how each method works and the parameters chosen can be found in the Methods section. 
+	
+	Figure \ref{fig:doublet_finder_comparison} shows the performance of scDblFinder and the two scds methods as well as the hybrid classifier on the droplet-aggregated 10X PBMC data set.	 
+	%
+	\begin{figure}
+		\begin{center}
+			\includegraphics[scale=0.1]{figures/doublet_finder_comparison.png} \\
+			\includegraphics[scale=0.1]{figures/doublet_cell_types.png}
+			
+			\caption{ a)-d) Performance of doublet-finders on droplets with occupancy determined by CellRanger calls. 
+				Each bar represents the identified number of cells in a droplet based on the sample deconvolution. 
+				The blue portion represents the number of detected doublets from the doublet detection tool.
+				Ideally, a tool will only detect singlets where there is one cell per GEM and doublets when there are more than one cell. 
+				Annotation of cell types in droplets containing two cells misclassified as singlets by scDblFinder. The majority (>50\%) of cells misclassified as singlets are homotypic doublets.
+			}
+			\label{fig:doublet_finder_comparison}
+		\end{center}
+	\end{figure}
+	%
+	For this data, scDblFinder (Figure \ref{fig:doublet_finder_comparison}a) clearly outperforms the scds methods (Figure \ref{fig:doublet_finder_comparison} b-d), with 90\% of the multiply-occupied droplets called as doublets compared to only 25\%-40\%. 
+	Doublet-finding methods are known to perform poorly on droplets containing multiple cells from the same type (homotypic doublets), as these are unlikely to show discrepant transcription profiles
+	\citep{Xiong2022, Neavin2024}.
+	To examine whether this is the case for the known multiplets in the 10X PBMC data set misclassified by scDblFinder, we first annotate the cells using the reference mapping package Azimuth and its included PBMC reference data set 
+	\citep{Hao2021}. 
+	We show the annotated cell types of both cells in the droplets containing two cells that are called as singlets by scDblFinder in Figure \ref{fig:doublet_finder_comparison}.	
+	The majority of the misclassified doublets are homotypic doublets (50.5\%) or have more closely related transcriptional profiles such as CD8+ T cells with CD4+ T cells (X\%).
+	scDblFinder calls 9.2\% of the CellRanger singlets as doublets, compared to < 2\% for scds. 
+	In the following sections, we examine doublets in more depth and show that the rate of unresolved doublets predicted by our mathematical model is quite close to the value from scDblFinder.
+	
+	\subsection{Measuring multiplet rates in Flex data}
+	
+	Having identified scDblFinder 
+	\citep{Germain2021}
+	as our preferred doublet-finding method for this study, we run it on all of our data sets. 
+	Figure \ref{fig:doublet rate 16-plex} shows the fraction of doublets called by scDblFinder on each Flex run as a function of the number of cells.
+	%
+	\begin{figure}
+		\begin{center}
+			\includegraphics[scale=0.2]{figures/doublet_rate_16plex.png}	\\
+			\caption{Doublet fraction (from \texttt{scDblFinder}) vs number of cells called for 10 16-plex Flex data sets. 
+				The blue line indicates a linear fit to the data. 
+				The black dashed line is the estimated rate from the Flex user guide. 
+			}		
+			\label{fig:doublet rate 16-plex}
+		\end{center}
+	\end{figure}
+	%
+	Also shown in Figure  \ref{fig:doublet rate 16-plex} is the predicted doublet fraction from the documentation for the Flex protocol 
+	\citep{10X_flex_protocol}
+	of 0.8\% per 1000 cells per sample. 
+	A clear linear trend is observed in the results from scDblFinder, with a best fit multiplet rate of 2.3\% per 1000 cells per sample, or $\approx 4$ times more than the estimate from the documentation.
+		
+	\subsection{Estimating the resolvable cell fraction}
+	\label{subsec:multiplet theory}
+	
+	Why is the multiplet rate predicted by doublet finders so much greater than the rate estimated by the manufacturer? 
+	Recall that the quoted multiplet rate for Flex is the same as that for the 3' protocol, only with an additional factor of the number of samples. 
+	This makes sense if each Flex sample is processed separately at the same concentration as an equivalent 3' sample, but the recommended practice is to pool all samples together after probe hybridisation, so that the concentration of cells is up to 16 times greater than a 3' experiment sequencing the same number of cells per sample. 
+	3' experiments are designed to avoid multiplets, so that very few droplets contain more than one cell. 
+	In Flex experiments the ability to resolve cells from different samples within the same droplet means that total cell concentrations can be much larger, and droplets containing multiple cells are common (cf. Figure \ref{fig:doublet_finder_comparison}). 
+	In this section, we perform some calculations showing that increasing the occupancy of droplets leads to a higher number of unresolved cells than previously thought.
+	
+	Consider an ensemble of droplets containing $k$ cells, drawn from a pool containing $n$ samples with equal proportions of cells from all samples. 
+	The number of possible configurations of cells within the droplets is the number of combinations of length $k$ drawn from $n$ with repetition allowed, i.e. 
+	%
+	\begin{equation}
+		M_k(n) = \frac{(n + k - 1)!}{(n - 1)! k!} \quad ,
+		\label{eq:multiplet_configurations}
+	\end{equation}
+	%
+	where $!$ denotes the factorial function. 
+	Assuming each of these combinations is equally probable, we aim to determine, given $n$ and $k$, what fraction of cells in a given droplet are ``resolvable'', which we define as being the only cell from their sample of origin.
+	
+	Starting with the extreme cases, if all cells in the droplet are from the same sample, the resolvable fraction is 0, while if each cell comes from a unique sample, the resolvable fraction is 1. 
+	In general, we can use the concept of integer partition to determine the resolvable fraction of a given combination of cells. A partition is a way of writing an integer $k$ as a sum of integer ``parts'', e.g. the partitions of 5 are (5), (4 + 1), (3 + 2), (3 + 1 + 1), (2 + 2 + 1), (2 + 1 + 1 + 1), (1 + 1 + 1 + 1 + 1).
+	In our scenario, a 1 in a partition represents a resolvable cell, while integers greater than 1 represent multiple cells from the same sample, so the resolvable fraction of a partition is the number of 1s divided by $k$.
+	
+	More formally, we denote each of the partitions of $k$ $P_i(k)$.
+	Define $c_j(P_i)$ the number of occurences of $j \in \lbrace 1, ..., k \rbrace$ in $P_i$.
+	The resolvable fraction of $P_i$, $f(P_i) = c_1(P_i) / k$.
+	The observed occupancy, $l(P_i)$ is the number of unique samples in the droplet and is the length of the partition.
+	To determine the number of combinations corresponding to $P_i$, $C_i(n, k)$, consider the first non-zero $c_j$. 
+	There are 
+	$\binom{n}{c_j}$
+	possible combinations of samples for these cells, where
+	%
+	\begin{equation}
+		\binom {n}{c_j} = \frac{n!}{(n-c_j)! c_j!} \quad 
+		\label{eq:combinations}
+	\end{equation}
+	%
+	is the binomial coefficient. 
+	For the next non-zero coefficient, $c_h$, there will be 
+	$\binom{n-c_j}{c_h}$ 
+	ways of choosing those samples, and in general
+	%
+	\begin{equation}
+		C_i(n, k) = \prod_{j=1}^{k} \binom{n - \sum_{h < j} c_h}{c_j} \quad ,
+		\label{eq: partition combinations}
+	\end{equation}
+	%
+	with 
+	%
+	\begin{equation}
+		\sum_{i} C_i(n, k) = M_k(n)  .
+		\label{eq:continuity equation} 
+	\end{equation}
+	%
+	The resolvable fraction of cells in a droplet containing $k$ cells is therefore
+	%
+	\begin{equation}
+		F_{\rm r}(n, k) = \sum_{i} \frac{f(P_i) C_i}{M_k(n)} \, .
+		\label{eq:resolvable fraction}
+	\end{equation}
+	%
+	However, in an experiment the observed occupancy is $l$, $l \leq k$, so that the fraction of observed `cells' that are true singlets, $f_{\rm observed} = c_1 / l$, replaces $f$ in equation \eqref{eq:resolvable fraction}.
+	We show $F_{\mathrm{r}}$ versus $k$ for $n = 4$ and $n = 16$ in Figure \ref{fig:resolvable_fraction} with both the resolvable fraction of the true number of cells and the fraction of unique samples that are resolvable.	
+	%
+	\begin{figure}
+		\begin{center}
+			\includegraphics[scale=0.3]{figures/observable_fraction_GEM_occupancy_n4.png}	\\
+			\includegraphics[scale=0.3]{figures/observable_fraction_GEM_occupancy_n16.png}	
+			\caption{Fraction of resolvable cells $F_r(n, k)$ vs occupancy $k$ for $n = 4$ (top) and $n = 16$ (bottom).
+			Black circles indicate the fraction of unique samples present in the droplets that are resolvable cells, while the blue diamonds indicate the fraction of the total number of cells that are resolvable.
+			}		
+			\label{fig:resolvable_fraction}
+		\end{center}
+	\end{figure}
+	%
+	Figure \ref{fig:resolvable_fraction} shows that $F_{\mathrm{r}}$ decreases steeply with $k$, with $F_{\mathrm{r}}(n = 4) < 0.5$,  for $k > 2$ and $F_{\mathrm{r}}(n = 16) < 0.6$ for $k > 5$.
+	
+	To determine the size of the effect in real data, we need to combine equation \eqref{eq:resolvable fraction} with the distribution of droplet occupancy $k$. 
+	A good model for the distribution of observed occupancy $l$ in Flex data is the zero-truncated Poisson distribution
+	%
+	\begin{equation}
+		p(l) = \frac{\lambda^l}{l! (e^{\lambda} - 1)}  ,
+		\label{eq: poisson_distribution} 
+	\end{equation}
+	%
+	where $\lambda$ is a shape parameter related to the mean droplet occupancy $\langle l \rangle$ through
+	%
+	\begin{equation}
+		\langle l \rangle = \frac{\lambda}{1 - e^{- \lambda}}  .
+		\label{eq: poisson expectation value}
+	\end{equation}
+	% 
+	We now make a simplifying assumption that the distribution of the true occupancy $k$ can be approximated by the distribution of the observed occupancy $l$, i.e.
+	%
+	\begin{equation}
+		p(k) \approxeq p(l)  .
+		\label{eq:pdf approximation}
+	\end{equation}
+	%
+	We make this assumption in order to simplify what follows, and because determination of a relationship between $k$ and $l$ is a non-trivial task requiring a more robust ground-truth data set for known doublets in Flex data than is currently available. 
+	The number of cells in droplets with observed occupancy $k$ is then 
+	%
+	\begin{equation}
+		N_{\rm cells}(k) = N_{\rm droplets} k p(k).
+		\label{eq:cells_at_occupancy}
+	\end{equation}
+	%
+	Combining  equations \eqref{eq:resolvable fraction} -- \eqref{eq:cells_at_occupancy}, we get the fraction of multiplets in an experiment 
+	%
+	\begin{equation}
+		M_f(n) = 1 - \sum_k \frac{k p(k) F_{\rm r}(n, k)}{\langle l \rangle} \quad .
+		\label{eq:dataset resolvable fraction}
+	\end{equation}
+	%
+	We show the expected doublet fraction in data sets for $n = 4$ and $n = 16$ as a function of mean observed droplet occupancy $\langle l \rangle$ in Figure \ref{fig: resolvable fraction observed}.
+	Figure \ref{fig: resolvable fraction observed} also includes the doublet fraction from \texttt{scDblFinder} for the earlyAIR and PBMC data sets in the 16-plex case 
+	\citep{Germain2021}.
+	%
+	\begin{figure}
+		\begin{center}
+			\includegraphics[scale=0.3]{figures/observable_fraction_n4.png}	\\
+			\includegraphics[scale=0.3]{figures/observable_fraction_n16.png}	
+			\caption{Calculated fraction of multiplets in Flex data vs mean droplet occupancy for $n = 4$ (top) and $n = 16$ (bottom).
+			Coloured points indicate doublet fraction determined from \texttt{scDblFinder} and observed mean droplet occupancy from earlyAIR and PBMC data sets.
+			}		
+			\label{fig: resolvable fraction observed}
+		\end{center}
+	\end{figure}
+	%		
+	Figure \ref{fig: resolvable fraction observed} shows that the predicted multiplet fraction from equation \eqref{eq:dataset resolvable fraction} still underestimates the doublet fraction in real-world data, though by significantly less than the prediction from 10X. 
+	We propose two potential reasons for this discrepancy. 
+	The first is the assumption that the true occupancy distribution is the same as the observed distribution, equation \ref{eq:pdf approximation}.
+	The presence of unresolvable cells implies that the true occupancy is always greater than that observed, see \textbf{Supplementary materials}.
+	%
+%	\begin{figure}
+%		\begin{center}
+%			\includegraphics[scale=0.2]{figures/mean_l_vs_k.png}
+%			\caption{Probability of observed occupancy $l$ given true occupancy $k$.
+%			}		
+%			\label{fig:mean l vs k}
+%		\end{center}
+%	\end{figure}
+	%
+	 Properly accounting for this effect would shift the data points in Figure \ref{fig: resolvable fraction observed} to the right, bringing them closer to the predicted curve. 	
+	Another reason is the assumption that all samples have equal numbers of cells. 
+	In any experiment, some samples contain more cells than others. We expect that this increases the likelihood of same-sample multiplets, though exactly how is beyond the scope of this work. 
+	
+	Even with the limiting assumptions of our model, however, the fraction of unresolved multiplets in an experiment with a mean droplet occupancy of 2.5 (a typical value for an experiment with the maximum recommended loading of 128,000 cells) is 0.17, almost 3 times greater than the value of 0.064 estimated by 10X. These results demonstrate the necessity of using a doublet detection method to remove doublets from Flex data. 
+		
+	Finally, in Figure \ref{fig:doublet_finder_comparison}b we observe that \texttt{scDblFinder} calls 2060 of the droplets in the PBMC data set identified as singlets by CellRanger as doublets. 
+	We can estimate the number of observed singlets that are actually doublets using equation \eqref{eq:resolvable fraction} and the observed distribution of droplet occupancies. 
+	From this, we estimate that $\sim$ 2700 droplets with occupancy $k > 1$ will appear as singlets in this data set. 
+	Most of these will have $k=2$ (2 cells, 2400 droplets), but some droplets can contain more cells from the same sample (\textbf{Supplementary figure}). 
+	The number predicted by the model is similar to the value of 2,060 from scDblFinder, with the discrepancy likely due to the difficulty of scDblFinder in identifying homotypic doublets, shown in Figures  \ref{fig:doublet_finder_comparison}b and \ref{fig:doublet_cell_types}.
+	
+	\subsection{Doublet-finding identifies spurious clusters}
+	
+	In order to demonstrate the effect of doublets on downstream analysis, we perform unsupervised clustering on the PBMC data set at a range of resolutions from 0.1 to 1.0 using the \texttt{FindMarkers} function with the SLM algorithm in \texttt{Seurat}.
+	We use two versions of the data: one with all the cells that pass our initial QC filtering, and another  and another after removing all of the doublets identified by  \texttt{scDblFinder}. 
+	At every resolution, removing the doublets reduces the number of clusters (Figure \ref{fig:doublet_clusters}a), indicating that doublets introduce structure in the data. 
+	%
+	\begin{figure}
+		\begin{center}
+			\includegraphics[scale=0.05]{figures/cluster_counts.png} 
+			\includegraphics[scale=0.05]{figures/doublet_clusters.png} \\
+			\includegraphics[scale=0.05]{figures/umap_before_after.png}
+			\caption{ 
+				a) Number of clusters as a function of cluster resolution for PBMC data set before (red crosses) and after (blue circles) removal of doublets identified by scDblFinder. 
+				b) Number of cells in each cluster in the PBMC data set at resolution 0.4, coloured by fraction of doublets. 
+				c) same as b) but with proportions instead of total counts. 
+				d) UMAP showing cells in the PBMC data set with labels from Azimuth. 
+				e) Same as d) but showing only cells from clusters with >75\% doublets. 
+				f) UMAP with Azimuth labels computed after removing doublets.
+				}
+			\label{fig:doublet_clusters}
+		\end{center}	
+	\end{figure} 
+		
+	We next look at the doublet composition of the identified cluster at resolution 0.4, (Figures \ref{fig:doublet_clusters}b and c). 
+	We identify 11 clusters that contain more than twice the average doublet fraction of the entire data set. 
+	 We show the position of all cells in the data set prior to doublet removal, labelled by their Azimuth annotations, on a Uniform Manifold Approximation and Projection (UMAP) plot in Figure \ref{fig:doublet_clusters}d. 
+	 Figure \ref{fig:doublet_clusters}e shows only the cells in the 11 clusters identified as being composed of mostly doublets.
+	 Figures \ref{fig:doublet_clusters}d and e show that these doublet-dominated clusters appear in the regions of the UMAP that bridge multiple cell types, such as CD14 and CD16 monocytes, or T cells and NK cells, lending further evidence for their identity as doublets. 
+	 
+	 Lastly, Figure  \ref{fig:doublet_clusters}f shows the UMAP with Azimuth labels after removing the doublets. 
+	 In Figure  \ref{fig:doublet_clusters}f, certain cell populations, such as T and NK cells, CD4 T cells and CD8 T cells, and CD14 and CD16 Monocytes, are better separated in more distinct clusters than in Figure  \ref{fig:doublet_clusters}d.
+	
+	\section{Discussion}
+	\label{sec:discussion}
+	
+	Sample barcoding, as implemented in the 10X Flex protocol, offers a solution to two significant issues in droplet-based scRNA-seq experiments: robust identification of sample-of-origin in multiplexed cell pools, and deconvolution of multiple cells from different samples in the same droplet. 
+	However, we show that unresolvable doublets, consisting of multiple cells from the same sample, remain a significant issue in Flex data sets, with scDblFinder classifying several times more cells as doublets than predicted by the manufacturer. 
+		
+	We verify that the predictions of scDblFinder are accurate by aggregating the droplet counts across the sample barcodes, a novel approach that will prove useful in future benchmarking studies of doublet-finding algorithms. 
+	We then propose a mathematical model for predicting the number of same-sample doublets in any droplet-based single-cell protocol with sample tagging, and find that the predictions of our model are much closer to the observed doublet rates in Flex experiments than the estimates from the user documentation. 
+	We demonstrate that doublet removal improves downstream analysis by eliminating spurious cell clusters consisting primarily of doublets.
+	
+	Despite the greater-than-expected number of doublets in Flex data, we find that in general the Flex protocol provides similar data quality to previous 3’ scRNA-seq protocols, and existing tools and workflows, such as ambient RNA removal and cell annotation, work without issue. 
+	
+	
+	\section{Methods}
+	\label{sec:methods}
+	
+	\subsection{Single-cell data pre-processing strategy}
+	\label{subsec:preprocessing}
+	
+	The starting point for all data sets discussed in this paper is a counts matrix consisting of cells called by CellRanger. This data is pre-processed in the following order prior to running doublet-finding tools. 
+	%
+	\begin{itemize}
+		\item Removal of unexpressed genes.
+		\item Removal of ambient background contamination using decontX 
+		\citep{Yang2020}.
+		\item Removal of cells with fewer than 250 reads.
+		\item Removal of cells with high mitochondrial read percentages, using the \texttt{isOutlier} function in the \texttt{DropletUtils} package
+		\citep{Griffiths2018, Lun2019}.		
+		\item Doublet calling with \texttt{scDblFinder}
+		\citep{Germain2021}
+	\end{itemize} 
+	%
+	
+	
+	
+	
+	%%%%%%%%%%%%%%
+	
+	\section{Data availability}
+	\label{sec:data availability}
+	
+	
+	
+	\section{Acknowledgments}
+	\label{acknowledgements}
+	
+	We thank Professor Andrew Melatos for suggesting using partitions as a way to describe the distribution of cells within droplets. AO is supported by NHMRC … CZI funding …	
+	
+	\bibliographystyle{plain}
+	\bibliography{flex_multiplets} 
+	
+	
+	%USE THE BELOW OPTIONS IN CASE YOU NEED AUTHOR YEAR FORMAT.
+	%\bibliographystyle{abbrvnat}
+	
+	
+	
+\end{document}
