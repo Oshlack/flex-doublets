@@ -1,5 +1,10 @@
 \begin{thebibliography}{10}
 
+\bibitem{Andrews1998}
+George~E Andrews.
+\newblock {\em The theory of partitions}.
+\newblock Number~2. Cambridge university press, 1998.
+
 \bibitem{Bais2020}
 Abha~S Bais and Dennis Kostka.
 \newblock scds: computational annotation of doublets in single-cell {RNA}

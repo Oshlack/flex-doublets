@@ -76,20 +76,26 @@
 	\author[1, 2]{Gunjan Dixit}
 	\author[1,2]{Rotem Aharon}
 	\author[1]{Victoria Streeton-Cook}
-	\author[3,4,5]{Shivanthan Shanthikumar}
-	\author[3,4,5]{Sarath Ranganathan}
-	\author[3,5]{Melanie Neeland}
+	\author[3]{Ling Ling}
+	\author[3,4]{Peter F. Hickey}
+	\author[3,4]{Daniela Amann-Zalcenstein}
+	\author[5]{Liam Gubbels}
+	\author[5,6,7]{Shivanthan Shanthikumar}
+	\author[5,6,7]{Sarath Ranganathan}
+	\author[5,6]{Melanie Neeland}
 	\author[1, 2]{Jovana Maksimovic}
-	\author[1, 2, 6,$\ast$]{Alicia Oshlack}
+	\author[1, 2, 8,$\ast$]{Alicia Oshlack}
 	
 	\authormark{Howitt et al.}
 	
 	\address[1]{Computational Biology Program, Peter MacCallum Cancer Centre, Parkville, VIC, Australia}
 	\address[2]{Sir Peter MacCallum Department of Oncology, University of Melbourne, Parkville, VIC, Australia}
 	\address[3]{Respiratory Diseases, Murdoch Children’s Research Institute, Parkville, VIC, Australia}
-	\address[4]{Respiratory and Sleep Medicine, Royal Children’s Hospital, Parkville, VIC, Australia}
-	\address[5]{Department of Paediatrics, University of Melbourne, Parkville, VIC, Australia}
-	\address[6]{School of Mathematics and Statistics, University of Melbourne, Parkville, VIC, Australia}
+	\address[4]{Department of Medical Biology, University of Melbourne, Parkville, VIC, Australia}
+	\address[5]{Respiratory Diseases, Murdoch Children’s Research Institute, Parkville, VIC, Australia}
+	\address[6]{Respiratory and Sleep Medicine, Royal Children’s Hospital, Parkville, VIC, Australia}
+	\address[7]{Department of Paediatrics, University of Melbourne, Parkville, VIC, Australia}
+	\address[8]{School of Mathematics and Statistics, University of Melbourne, Parkville, VIC, Australia}
 		
 	\corresp[$\ast$]{alicia.oshlack@petermac.org}
 		
@@ -252,7 +258,7 @@
 	\label{subsec:multiplet theory}
 	
 	Why is the multiplet rate predicted by doublet finders so much greater than the rate estimated by the manufacturer? 
-	Recall that the quoted multiplet rate for Flex is the same as that for the 3' protocol, only with an additional factor of the number of samples. 
+	Recall that the quoted rate of unresolvable multiplets in Flex comes from dividing the rate for the 3' protocol by the number of samples. 
 	This makes sense if each Flex sample is processed separately at the same concentration as an equivalent 3' sample, but the recommended practice is to pool all samples together after probe hybridisation, so that the concentration of cells is up to 16 times greater than a 3' experiment sequencing the same number of cells per sample. 
 	3' experiments are designed to avoid multiplets, so that very few droplets contain more than one cell. 
 	In Flex experiments the ability to resolve cells from different samples within the same droplet means that total cell concentrations can be much larger, and droplets containing multiple cells are common (cf. Figure \ref{fig:doublet_finder_comparison}). 
@@ -267,68 +273,85 @@
 	\end{equation}
 	%
 	where $!$ denotes the factorial function. 
-	Assuming each of these combinations is equally probable, we aim to determine, given $n$ and $k$, what fraction of cells in a given droplet are ``resolvable'', which we define as being the only cell from their sample of origin.
+	Assuming each of these combinations is equally probable, we aim to determine what fraction $F(n, k)$ of cells in droplets containing $k$ cells are ``resolvable'', which we define as being the only cell from their sample of origin.
+	In general, 
+	%
+	\begin{equation}
+		F(n, k) = \frac{\sum_{\mathrm c} f_{\mathrm c}}{M_k}
+		\label{eq:resolvable_fraction_given_k}
+	\end{equation}
+	%
+	where the subscript $\mathrm{c}$ denotes a single configuration of cells within a droplet, and $f_{\mathrm c}$ is the resolvable fraction of that configuration. 
+	Solving \eqref{eq:resolvable_fraction_given_k} therefore requires determining $f_c$ for each combination. 
 	
-	Starting with the extreme cases, if all cells in the droplet are from the same sample, the resolvable fraction is 0, while if each cell comes from a unique sample, the resolvable fraction is 1. 
-	In general, we can use the concept of integer partition to determine the resolvable fraction of a given combination of cells. A partition is a way of writing an integer $k$ as a sum of integer ``parts'', e.g. the partitions of 5 are (5), (4 + 1), (3 + 2), (3 + 1 + 1), (2 + 2 + 1), (2 + 1 + 1 + 1), (1 + 1 + 1 + 1 + 1).
-	In our scenario, a 1 in a partition represents a resolvable cell, while integers greater than 1 represent multiple cells from the same sample, so the resolvable fraction of a partition is the number of 1s divided by $k$.
-	
-	More formally, we denote each of the partitions of $k$ $P_i(k)$.
-	Define $c_j(P_i)$ the number of occurences of $j \in \lbrace 1, ..., k \rbrace$ in $P_i$.
-	The resolvable fraction of $P_i$, $f(P_i) = c_1(P_i) / k$.
-	The observed occupancy, $l(P_i)$ is the number of unique samples in the droplet and is the length of the partition.
-	To determine the number of combinations corresponding to $P_i$, $C_i(n, k)$, consider the first non-zero $c_j$. 
+	We define the observed occupancy of a droplet as $l$, $l \leq k$, as the number of unique samples in a droplet.
+	Droplets with $k = 1$ are all resolvable.   
+	For droplets with $k \geq 2$, if all cells in the droplet are from the same sample, i.e. $l=1$, no cells are resolvable, while if each cell comes from a unique sample, i.e. $l = k$, all cells are resolvable. 
+	In general, we can use the concept of integer partition to determine the resolvable fraction of a given combination of cells.
+	A partition is a way of writing an integer $k$ as a sum of integer ``parts'', e.g. the partitions of 5 are (5), (4 + 1), (3 + 2), (3 + 1 + 1), (2 + 2 + 1), (2 + 1 + 1 + 1), (1 + 1 + 1 + 1 + 1)
+	\citep{Andrews1998}.
+	In this picture, each part of the partition is a unique sample, the number of parts is the observed occupancy $l$, and the number of 1s in the partition is the number of resolvable cells, e.g., the partition (2 + 2 + 1) represents a droplet with $k$ = 5 consisting of 2 cells from sample A, 2 cells from sample B and 1 cell from sample C.
+	We can define the fraction of resolvable cells in a droplet $f$ in two ways: first, the number of resolvable cells from unique samples in the droplet divided by the total number of cells in the droplet, i.e. the number of 1s in the partition divided by $k$; second, the number of resolvable cells divided by the number of unique samples in the droplet, i.e. the number of 1s in the partition divided by $l$. 
+	Since we are interested in comparing to experimental data, we use the second definition.
+	For the partitions of 5 written above, this gives $f = 0, 0.5. 0, 2/3, 1/3, 0.75, 1$.
+		
+	Since any configuration of cells within a droplet can be represented as a partition, and the resolvable fraction of each partition is easily calculable
+	\citep{Andrews1998},
+	 all that we need to solve \eqref{eq:resolvable_fraction_given_k} is the proportion each partition contributes to the total number of combinations $M_k$ [equation \eqref{eq:multiplet_configurations}].
+	We denote each of the partitions of $k$ $P_i(k)$.
+	Define $m_j(P_i)$ the number of occurences of $j \in \lbrace 1, ..., k \rbrace$ in $P_i$.
+	The observed occupancy, $l(P_i)$ is the length of the partition and the resolvable fraction of $P_i$, $f(P_i) = m_1(P_i) / l$.
+	To determine the number of combinations corresponding to $P_i$, $C_i(n, k)$, consider the first non-zero $m_j$. 
 	There are 
-	$\binom{n}{c_j}$
+	$\binom{n}{m_j}$
 	possible combinations of samples for these cells, where
 	%
 	\begin{equation}
-		\binom {n}{c_j} = \frac{n!}{(n-c_j)! c_j!} \quad 
+		\binom {n}{m_j} = \frac{n!}{(n-m_j)! m_j!} \quad 
 		\label{eq:combinations}
 	\end{equation}
 	%
 	is the binomial coefficient. 
-	For the next non-zero coefficient, $c_h$, there will be 
-	$\binom{n-c_j}{c_h}$ 
-	ways of choosing those samples, and in general
+	For the next non-zero coefficient, $m_h$, there will be 
+	$\binom{n-c_j}{m_h}$ 
+	ways of choosing those samples, and in general we expect
 	%
 	\begin{equation}
-		C_i(n, k) = \prod_{j=1}^{k} \binom{n - \sum_{h < j} c_h}{c_j} \quad ,
+		C_i(n, k) = \prod_{j=1}^{k} \binom{n - \sum_{h < j} m_h}{m_j} \quad .
 		\label{eq: partition combinations}
 	\end{equation}
 	%
-	with 
+	As a check on \eqref{eq: partition combinations}, we find that 
 	%
 	\begin{equation}
-		\sum_{i} C_i(n, k) = M_k(n)  .
+		\sum_{i} C_i(n, k) = M_k(n)  
 		\label{eq:continuity equation} 
 	\end{equation}
 	%
-	The resolvable fraction of cells in a droplet containing $k$ cells is therefore
+	as required. 
+	The resolvable fraction of cells in droplets containing $k$ cells is therefore
 	%
 	\begin{equation}
-		F_{\rm r}(n, k) = \sum_{i} \frac{f(P_i) C_i}{M_k(n)} \, .
+		F(n, k) = \sum_{i} \frac{f(P_i) C_i}{M_k(n)} \, .
 		\label{eq:resolvable fraction}
 	\end{equation}
 	%
-	However, in an experiment the observed occupancy is $l$, $l \leq k$, so that the fraction of observed `cells' that are true singlets, $f_{\rm observed} = c_1 / l$, replaces $f$ in equation \eqref{eq:resolvable fraction}.
-	We show $F_{\mathrm{r}}$ versus $k$ for $n = 4$ and $n = 16$ in Figure \ref{fig:resolvable_fraction} with both the resolvable fraction of the true number of cells and the fraction of unique samples that are resolvable.	
+	We show $F$ versus $k$ for $n = 4$ and $n = 16$ in Figure \ref{fig:resolvable_fraction}.	
 	%
 	\begin{figure}
 		\begin{center}
-			\includegraphics[scale=0.3]{figures/observable_fraction_GEM_occupancy_n4.png}	\\
-			\includegraphics[scale=0.3]{figures/observable_fraction_GEM_occupancy_n16.png}	
-			\caption{Fraction of resolvable cells $F_r(n, k)$ vs occupancy $k$ for $n = 4$ (top) and $n = 16$ (bottom).
-			Black circles indicate the fraction of unique samples present in the droplets that are resolvable cells, while the blue diamonds indicate the fraction of the total number of cells that are resolvable.
+			\includegraphics[scale=0.1]{figures/observable_fraction_GEM_occupancy_n4.png}	\\
+			\includegraphics[scale=0.1]{figures/observable_fraction_GEM_occupancy_n16.png}	
+			\caption{Fraction of resolvable cells $F(n, k)$ vs occupancy $k$ for $n = 4$ (top) and $n = 16$ (bottom).
 			}		
 			\label{fig:resolvable_fraction}
 		\end{center}
 	\end{figure}
 	%
-	Figure \ref{fig:resolvable_fraction} shows that $F_{\mathrm{r}}$ decreases steeply with $k$, with $F_{\mathrm{r}}(n = 4) < 0.5$,  for $k > 2$ and $F_{\mathrm{r}}(n = 16) < 0.6$ for $k > 5$.
+	Figure \ref{fig:resolvable_fraction} shows that $F_{\mathrm{r}}$ decreases steeply with $k$, with $F(n = 4) < 0.5$,  for $k > 2$ and $F_{\mathrm{r}}(n = 16) < 0.75$ for $k > 5$.
 	
 	To determine the size of the effect in real data, we need to combine equation \eqref{eq:resolvable fraction} with the distribution of droplet occupancy $k$. 
-	A good model for the distribution of observed occupancy $l$ in Flex data is the zero-truncated Poisson distribution
+	A good model for the distribution of observed occupancy $l$ in Flex data is the zero-truncated Poisson distribution (see \textbf{Supplementary Materials})
 	%
 	\begin{equation}
 		p(l) = \frac{\lambda^l}{l! (e^{\lambda} - 1)}  ,
@@ -379,7 +402,8 @@
 		\end{center}
 	\end{figure}
 	%		
-	Figure \ref{fig: resolvable fraction observed} shows that the predicted multiplet fraction from equation \eqref{eq:dataset resolvable fraction} still underestimates the doublet fraction in real-world data, though by significantly less than the prediction from 10X. 
+	Figure \ref{fig: resolvable fraction observed} shows that the predicted multiplet fraction from equation \eqref{eq:dataset resolvable fraction} still underestimates the doublet fraction in real-world data, though by significantly less than the prediction from the Flex User Guide 
+	\citep{10X_flex_protocol}. 
 	We propose two potential reasons for this discrepancy. 
 	The first is the assumption that the true occupancy distribution is the same as the observed distribution, equation \ref{eq:pdf approximation}.
 	The presence of unresolvable cells implies that the true occupancy is always greater than that observed, see \textbf{Supplementary materials}.
@@ -483,6 +507,7 @@
 	\section{Acknowledgments}
 	\label{acknowledgements}
 	
+	Data generation for the earlyAIR data set was performed by WEHI’s Cellular Genomics Projects Team, with sequencing performed by Stephen Wilcox and Sarah MacRaild and additional data generation by Casey J. A. Anttila and Ruvimbo Mishi.
 	We thank Professor Andrew Melatos for suggesting using partitions as a way to describe the distribution of cells within droplets. AO is supported by NHMRC … CZI funding …	
 	
 	\bibliographystyle{plain}
