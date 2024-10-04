@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2023.1.9)  11 SEP 2024 16:20
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2023.1.9)  4 OCT 2024 15:26
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1079,15 +1079,15 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 LaTeX Font Info:    Trying to load font information for TS1+qhv on input line 1
-57.
+56.
 
 (/usr/local/texlive/2022/texmf-dist/tex/latex/tex-gyre/ts1qhv.fd
 File: ts1qhv.fd 2009/09/25 v1.2 font definition file for TS1/qhv
 )
 LaTeX Font Info:    Font shape `TS1/qhv/m/n' will be
-(Font)              scaled to size 6.58002pt on input line 157.
+(Font)              scaled to size 6.58002pt on input line 156.
 LaTeX Font Info:    Font shape `OT1/qhv/b/n' will be
-(Font)              scaled to size 6.58002pt on input line 157.
+(Font)              scaled to size 6.58002pt on input line 156.
 
 Overfull \hbox (1.20445pt too wide) has occurred while \output is active
  []
@@ -1101,27 +1101,25 @@ Non-PDF special ignored!
 
 
 ]
-LaTeX Font Info:    Font shape `OT1/ntxtlf/b/n' will be
-(Font)              scaled to size 8.03pt on input line 176.
-<figures/doublet_finder_comparison.png, id=105, 2107.875pt x 1301.86375pt>
-File: figures/doublet_finder_comparison.png Graphic file (type png)
-<use figures/doublet_finder_comparison.png>
-Package pdftex.def Info: figures/doublet_finder_comparison.png  used on input l
-ine 211.
-(pdftex.def)             Requested size: 210.79985pt x 130.194pt.
-<figures/doublet_cell_types.png, id=107, 2107.875pt x 1301.86375pt>
-File: figures/doublet_cell_types.png Graphic file (type png)
-<use figures/doublet_cell_types.png>
-Package pdftex.def Info: figures/doublet_cell_types.png  used on input line 212
-.
-(pdftex.def)             Requested size: 210.79985pt x 130.194pt.
+<figures/doublet_finder_comparison_extra.png, id=114, 1927.2pt x 2059.695pt>
+File: figures/doublet_finder_comparison_extra.png Graphic file (type png)
+<use figures/doublet_finder_comparison_extra.png>
+Package pdftex.def Info: figures/doublet_finder_comparison_extra.png  used on i
+nput line 206.
+(pdftex.def)             Requested size: 154.17915pt x 164.77896pt.
+<figures/doublet_rate_16plex.png, id=124, 1644.1425pt x 1620.0525pt>
+File: figures/doublet_rate_16plex.png Graphic file (type png)
+<use figures/doublet_rate_16plex.png>
+Package pdftex.def Info: figures/doublet_rate_16plex.png  used on input line 23
+7.
+(pdftex.def)             Requested size: 213.74603pt x 210.61421pt.
 
 
 LaTeX Font Warning: Font shape `OT1/qhv/m/sl' in size <8.03> not available
-(Font)              Font shape `OT1/qhv/m/it' tried instead on input line 233.
+(Font)              Font shape `OT1/qhv/m/it' tried instead on input line 250.
 
 LaTeX Font Info:    Font shape `OT1/qhv/m/it' will be
-(Font)              scaled to size 7.54822pt on input line 233.
+(Font)              scaled to size 7.54822pt on input line 250.
 
 Overfull \hbox (252.98238pt too wide) has occurred while \output is active
 [][] 
@@ -1130,23 +1128,8 @@ Overfull \hbox (252.98238pt too wide) has occurred while \output is active
 [2
 Non-PDF special ignored!
 <special> ps: [{ThisPage} << /CropBox [0 0 612.27486 790.84435] >> /PUT pdf...
- <./figures/doublet_finder_comparison.png> <./figures/doublet_cell_types.png>]
-<figures/doublet_rate_16plex.png, id=132, 1087.06125pt x 1000.73875pt>
-File: figures/doublet_rate_16plex.png Graphic file (type png)
-<use figures/doublet_rate_16plex.png>
-Package pdftex.def Info: figures/doublet_rate_16plex.png  used on input line 24
-3.
-(pdftex.def)             Requested size: 217.40839pt x 200.14421pt.
-LaTeX Font Info:    Trying to load font information for OT1+ntxtt on input line
- 247.
-
-(/usr/local/texlive/2022/texmf-dist/tex/latex/newtx/ot1ntxtt.fd
-File: ot1ntxtt.fd 2012/04/20 v3.1
-)
-LaTeX Font Info:    Font shape `OT1/ntxtt/m/n' will be
-(Font)              scaled to size 8.03pt on input line 247.
-
-Underfull \hbox (badness 1147) in paragraph at lines 273--279
+ <./figures/doublet_finder_comparison_extra.png>]
+Underfull \hbox (badness 1147) in paragraph at lines 267--273
 \OT1/minntx/m/n/8.03 where $!$ denotes the factorial function. Assuming each of
  these
  []
@@ -1160,33 +1143,37 @@ Overfull \hbox (252.98238pt too wide) has occurred while \output is active
 Non-PDF special ignored!
 <special> ps: [{ThisPage} << /CropBox [0 0 612.27486 790.84435] >> /PUT pdf...
  <./figures/doublet_rate_16plex.png>]
-<figures/observable_fraction_GEM_occupancy_n4.png, id=160, 2107.875pt x 1301.86
-375pt>
-File: figures/observable_fraction_GEM_occupancy_n4.png Graphic file (type png)
-<use figures/observable_fraction_GEM_occupancy_n4.png>
-Package pdftex.def Info: figures/observable_fraction_GEM_occupancy_n4.png  used
- on input line 355.
-(pdftex.def)             Requested size: 210.79985pt x 130.194pt.
-<figures/observable_fraction_GEM_occupancy_n16.png, id=161, 2107.875pt x 1301.8
-6375pt>
-File: figures/observable_fraction_GEM_occupancy_n16.png Graphic file (type png)
+<figures/observable_fraction_GEM_occupancy.png, id=167, 1671.24374pt x 1719.423
+75pt>
+File: figures/observable_fraction_GEM_occupancy.png Graphic file (type png)
+<use figures/observable_fraction_GEM_occupancy.png>
+Package pdftex.def Info: figures/observable_fraction_GEM_occupancy.png  used on
+ input line 349.
+(pdftex.def)             Requested size: 167.13416pt x 171.95244pt.
+<figures/observable_fraction.png, id=175, 1927.2pt x 2059.695pt>
+File: figures/observable_fraction.png Graphic file (type png)
+<use figures/observable_fraction.png>
+Package pdftex.def Info: figures/observable_fraction.png  used on input line 40
+1.
+(pdftex.def)             Requested size: 192.7313pt x 205.98157pt.
+LaTeX Font Info:    Font shape `OT1/ntxtlf/b/n' will be
+(Font)              scaled to size 8.03pt on input line 413.
+LaTeX Font Info:    Trying to load font information for OT1+ntxtt on input line
+ 438.
 
-<use figures/observable_fraction_GEM_occupancy_n16.png>
-Package pdftex.def Info: figures/observable_fraction_GEM_occupancy_n16.png  use
-d on input line 356.
-(pdftex.def)             Requested size: 210.79985pt x 130.194pt.
-<figures/observable_fraction_n4.png, id=169, 624.3325pt x 454.69875pt>
-File: figures/observable_fraction_n4.png Graphic file (type png)
-<use figures/observable_fraction_n4.png>
-Package pdftex.def Info: figures/observable_fraction_n4.png  used on input line
- 408.
-(pdftex.def)             Requested size: 187.3012pt x 136.41068pt.
-<figures/observable_fraction_n16.png, id=170, 624.3325pt x 454.69875pt>
-File: figures/observable_fraction_n16.png Graphic file (type png)
-<use figures/observable_fraction_n16.png>
-Package pdftex.def Info: figures/observable_fraction_n16.png  used on input lin
-e 409.
-(pdftex.def)             Requested size: 187.3012pt x 136.41068pt.
+(/usr/local/texlive/2022/texmf-dist/tex/latex/newtx/ot1ntxtt.fd
+File: ot1ntxtt.fd 2012/04/20 v3.1
+)
+LaTeX Font Info:    Font shape `OT1/ntxtt/m/n' will be
+(Font)              scaled to size 8.03pt on input line 438.
+<figures/doublet_QC.png, id=185, 2872.7325pt x 2059.695pt>
+File: figures/doublet_QC.png Graphic file (type png)
+<use figures/doublet_QC.png>
+Package pdftex.def Info: figures/doublet_QC.png  used on input line 444.
+(pdftex.def)             Requested size: 430.89128pt x 308.94092pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
 
 Overfull \hbox (252.98238pt too wide) has occurred while \output is active
 [][] 
@@ -1195,31 +1182,10 @@ Overfull \hbox (252.98238pt too wide) has occurred while \output is active
 [4
 Non-PDF special ignored!
 <special> ps: [{ThisPage} << /CropBox [0 0 612.27486 790.84435] >> /PUT pdf...
- <./figures/observable_fraction_GEM_occupancy_n4.png> <./figures/observable_fra
-ction_GEM_occupancy_n16.png> <./figures/observable_fraction_n4.png> <./figures/
-observable_fraction_n16.png>]
+ <./figures/observable_fraction_GEM_occupancy.png> <./figures/observable_fracti
+on.png>]
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
-LaTeX Warning: Reference `fig:doublet_cell_types' on page 5 undefined on input 
-line 442.
-
-<figures/cluster_counts.png, id=198, 2449.15pt x 1947.275pt>
-File: figures/cluster_counts.png Graphic file (type png)
-<use figures/cluster_counts.png>
-Package pdftex.def Info: figures/cluster_counts.png  used on input line 452.
-(pdftex.def)             Requested size: 122.46468pt x 97.36945pt.
-<figures/doublet_clusters.png, id=199, 3467.95625pt x 1947.275pt>
-File: figures/doublet_clusters.png Graphic file (type png)
-<use figures/doublet_clusters.png>
-Package pdftex.def Info: figures/doublet_clusters.png  used on input line 453.
-(pdftex.def)             Requested size: 173.40797pt x 97.36945pt.
-<figures/umap_before_after.png, id=200, 3467.95625pt x 1947.275pt>
-File: figures/umap_before_after.png Graphic file (type png)
-<use figures/umap_before_after.png>
-Package pdftex.def Info: figures/umap_before_after.png  used on input line 454.
-
-(pdftex.def)             Requested size: 173.40797pt x 97.36945pt.
-LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
-(Font)              scaled to size 7.0pt on input line 498.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
@@ -1231,8 +1197,10 @@ Overfull \hbox (252.98238pt too wide) has occurred while \output is active
 [5
 Non-PDF special ignored!
 <special> ps: [{ThisPage} << /CropBox [0 0 612.27486 790.84435] >> /PUT pdf...
- <./figures/cluster_counts.png> <./figures/doublet_clusters.png> <./figures/uma
-p_before_after.png>] (./flex_multiplets.bbl
+ <./figures/doublet_QC.png>]
+LaTeX Font Info:    Font shape `OT1/ntxtlf/m/n' will be
+(Font)              scaled to size 7.0pt on input line 501.
+ (./flex_multiplets.bbl
 LaTeX Font Info:    Font shape `OT1/ntxtlf/m/it' will be
 (Font)              scaled to size 8.03pt on input line 5.
 
@@ -1262,21 +1230,6 @@ Overfull \hbox (113.89064pt too wide) in paragraph at lines 35--41
 nt-[]kits-[]for-[]multiplexed-[]samples$[]\OT1/minntx/m/n/8.03 . 
  []
 
-)
-[leftcolumn badness]: 1000000 on 4.63812pt
-[rightcolumn badness]: 1000000 on 4.63812pt
-- LAST -
-Extra skip:0.0pt
-Left:469.0pt/0.11241pt
-Right:472.0pt/1.75053pt
-Split: 472.0pt
-Output:472.0pt
-Pageshrink: 0.0pt
-Pagestretch: 0.0pt
-@colht:670.0pt
-FLUSHEND [output]: 472.0pt
-FLUSHEND [leftcolumn badness]: 100
-FUSHEND [rightcolumn badness]: 0
 
 Overfull \hbox (252.98238pt too wide) has occurred while \output is active
 [][] 
@@ -1285,25 +1238,65 @@ Overfull \hbox (252.98238pt too wide) has occurred while \output is active
 [6
 Non-PDF special ignored!
 <special> ps: [{ThisPage} << /CropBox [0 0 612.27486 790.84435] >> /PUT pdf...
+])
+[leftcolumn badness]: 1000000 on 22.00803pt
+[rightcolumn badness]: 1000000 on 22.00803pt
+[leftcolumn badness]: 1000000 on 22.00803pt
+[rightcolumn badness]: 1000000 on 22.00803pt
+[leftcolumn badness]: 1000000 on 22.00803pt
+[rightcolumn badness]: 1000000 on 22.00803pt
+[leftcolumn badness]: 1000000 on 22.00803pt
+[rightcolumn badness]: 1000000 on 22.00803pt
+[leftcolumn badness]: 1000000 on 22.00803pt
+[rightcolumn badness]: 1000000 on 22.00803pt
+[leftcolumn badness]: 1000000 on 22.00803pt
+[rightcolumn badness]: 1000000 on 22.00803pt
+[leftcolumn badness]: 1000000 on 22.00803pt
+[rightcolumn badness]: 1000000 on 22.00803pt
+[leftcolumn badness]: 1000000 on 22.00803pt
+[rightcolumn badness]: 1000000 on 22.00803pt
+[leftcolumn badness]: 1000000 on 22.00803pt
+[rightcolumn badness]: 1000000 on 22.00803pt
+[leftcolumn badness]: 1000000 on 22.00803pt
+[rightcolumn badness]: 1000000 on 22.00803pt
+[leftcolumn badness]: 1000000 on 22.00803pt
+[rightcolumn badness]: 1000000 on 22.00803pt
+- LAST -
+Extra skip:22.0pt
+Left:175.0pt/1.75053pt
+Right:153.0pt/1.75053pt
+Split: 175.5pt
+Output:175.5pt
+Pageshrink: 0.0pt
+Pagestretch: 0.0pt
+@colht:670.0pt
+FLUSHEND [output]: 175.5pt
+FLUSHEND [leftcolumn badness]: 10000
+FUSHEND [rightcolumn badness]: 10000
+
+Overfull \hbox (252.98238pt too wide) has occurred while \output is active
+[][] 
+ []
+
+[7
+Non-PDF special ignored!
+<special> ps: [{ThisPage} << /CropBox [0 0 612.27486 790.84435] >> /PUT pdf...
 ] (./flex_multiplets.aux)
 
 LaTeX Font Warning: Size substitutions with differences
 (Font)              up to 1.58727pt have occurred.
 
-
-LaTeX Warning: There were undefined references.
-
 Package rerunfilecheck Info: File `flex_multiplets.out' has not changed.
-(rerunfilecheck)             Checksum: 552BF96DFD50B9E89A7E64613D558ACB;2112.
+(rerunfilecheck)             Checksum: BE979501FE695C8D572579D655E1850D;2586.
  ) 
 Here is how much of TeX's memory you used:
- 19682 strings out of 478268
- 311212 string characters out of 5846348
- 628237 words of memory out of 5000000
- 37410 multiletter control sequences out of 15000+600000
+ 19658 strings out of 478268
+ 310042 string characters out of 5846348
+ 617352 words of memory out of 5000000
+ 37387 multiletter control sequences out of 15000+600000
  597348 words of font info for 258 fonts, out of 8000000 for 9000
  1145 hyphenation exceptions out of 8191
- 75i,11n,77p,17358b,435s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,11n,77p,17358b,494s stack positions out of 10000i,1000n,20000p,200000b,200000s
 {/usr/local/texlive/2022/texmf-dist/fonts/enc/dvips/newtx/ntx-ot1-tlf.enc}{/u
 sr/local/texlive/2022/texmf-dist/fonts/enc/dvips/tex-gyre/q-ts1.enc}{/usr/local
 /texlive/2022/texmf-dist/fonts/enc/dvips/tex-gyre/q-rm.enc}</usr/local/texlive/
@@ -1320,10 +1313,10 @@ r/local/texlive/2022/texmf-dist/fonts/type1/public/txfonts/txtt.pfb></usr/local
 /texlive/2022/texmf-dist/fonts/type1/public/newtx/ztmb.pfb></usr/local/texlive/
 2022/texmf-dist/fonts/type1/public/newtx/ztmr.pfb></usr/local/texlive/2022/texm
 f-dist/fonts/type1/public/newtx/ztmri.pfb>
-Output written on flex_multiplets.pdf (6 pages, 1716307 bytes).
+Output written on flex_multiplets.pdf (7 pages, 1167462 bytes).
 PDF statistics:
- 316 PDF objects out of 1000 (max. 8388607)
- 256 compressed objects within 3 object streams
- 76 named destinations out of 1000 (max. 500000)
- 147 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 326 PDF objects out of 1000 (max. 8388607)
+ 275 compressed objects within 3 object streams
+ 80 named destinations out of 1000 (max. 500000)
+ 138 words of extra memory for PDF output out of 10000 (max. 10000000)
 

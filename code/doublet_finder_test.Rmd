@@ -1,0 +1,213 @@
+---
+title: "Testing doublet callers with Flex data"
+author: "George Howitt"
+date: "2024-10-02"
+output: html_document
+---
+
+Using the GEM-level counts data to test the performance of scDblFinder and scds with the 10X PBMC 16-plex data set. 
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(BiocStyle)
+  library(BiocParallel)
+  library(tidyverse)
+  library(here)
+  library(glue)
+  library(DropletUtils)
+  library(scran)
+  library(scater)
+  library(scuttle)
+  library(janitor)
+  library(cowplot)
+  library(patchwork)
+  library(scales)
+  library(readr)
+  library(Seurat)
+  library(celda)
+  library(Azimuth)
+  library(Matrix)
+  library(googlesheets4)
+  library(lubridate)
+  library(scds)
+  library(scDblFinder)
+})
+```
+
+# Data set up
+
+Load in cell- and GEM-level data
+```{r}
+seu <- readRDS(file = here("data","10X_PBMC_16plex", "SEU", "10X_PBMC.CellRanger.decontX.mito.filter.Azimuth.SEU.rds"))
+seu_gem <- readRDS(file = here("data","10X_PBMC_16plex", "SEU", "10X_PBMC.GEM_counts.raw.SEU.rds"))
+```
+
+The cell-level object may have gone through some additional filtering to the GEM object, so filter out any GEMs that don't contain cells 
+```{r}
+seu_gem <- seu_gem[, unique(seu$GEM_barcode)]
+seu_gem$cells_per_GEM <- table(seu$GEM_barcode)[colnames(seu_gem)]
+```
+
+scds requires the data to be in SingleCellExperiment format, need to convert. 
+```{r}
+gem_counts <- seu_gem[["RNA"]]$counts
+meta <- seu_gem@meta.data
+
+sce_gem <- SingleCellExperiment(assays = list(counts = gem_counts))
+colData(sce_gem) <- DataFrame(meta)
+```
+
+```{r}
+sce_gem <- logNormCounts(sce_gem) %>%
+  runPCA() %>%
+  runUMAP()
+```
+
+# Multiplet finding on GEMs
+
+Run scDblFinder
+```{r}
+bp <- MulticoreParam(8, RNGseed=56213)
+sce_gem <- scDblFinder(sce_gem, 
+                       artificialDoublets = 10000,
+                       knownDoublets = sce_gem$cells_per_GEM > 1,
+                       BPPARAM=bp)
+```
+
+Run scds methods
+```{r}
+sce_gem = cxds(sce_gem,retRes = TRUE, estNdbl = sum(sce_gem$cells_per_GEM>1))
+sce_gem = bcds(sce_gem,retRes = TRUE, estNdbl = sum(sce_gem$cells_per_GEM>1))
+sce_gem = cxds_bcds_hybrid(sce_gem, estNdbl = sum(sce_gem$cells_per_GEM>1))
+```
+
+```{r}
+seu_gem$scDblFinder.class <- sce_gem$scDblFinder.class
+seu_gem$scDblFinder.score <- sce_gem$scDblFinder.score
+seu_gem$cxds_call <- sce_gem$cxds_call
+seu_gem$cxds_score <- sce_gem$cxds_score 
+seu_gem$bcds_call <- sce_gem$bcds_call
+seu_gem$bcds_score <- sce_gem$bcds_score
+seu_gem$hybrid_call <- sce_gem$hybrid_call
+seu_gem$hybrid_score <- sce_gem$hybrid_score
+```
+
+
+```{r}
+p1 <- ggplot(seu_gem@meta.data %>%
+               mutate(cells_per_GEM = as.factor(cells_per_GEM))) +
+  geom_bar(aes(x = cells_per_GEM, fill = scDblFinder.class)) + 
+  ylab("GEM count") +
+  ggtitle("scDblFinder") +
+  theme(axis.title.x = element_blank())
+
+p2 <- ggplot(seu_gem@meta.data %>%
+               mutate(cells_per_GEM = as.factor(cells_per_GEM))) +
+  geom_bar(aes(x = cells_per_GEM, fill = hybrid_call)) + 
+  ylab("GEM count") +
+  ggtitle("scds hybrid call") + 
+  theme(axis.title = element_blank())
+
+p3 <- ggplot(seu_gem@meta.data %>%
+               mutate(cells_per_GEM = as.factor(cells_per_GEM))) +
+  geom_bar(aes(x = cells_per_GEM, fill = cxds_call)) + 
+  xlab("cells per droplet") + 
+  ylab("GEM count") +
+  ggtitle("scds coexpression call")
+
+p4 <- ggplot(seu_gem@meta.data %>%
+               mutate(cells_per_GEM = as.factor(cells_per_GEM))) +
+  geom_bar(aes(x = cells_per_GEM, fill = bcds_call)) + 
+  xlab("cells per droplet") + 
+  ylab("GEM count") +
+  ggtitle("scds binary classification call") + 
+  theme(axis.title.y = element_blank())
+
+pad <- ((p1 | p2) / (p3 | p4)) #+ plot_annotation(tag_levels = 'a')
+pad
+```
+
+```{r}
+table(seu_gem$cells_per_GEM, seu_gem$scDblFinder.class) / as.vector(table(seu_gem$cells_per_GEM))
+```
+
+```{r}
+VlnPlot(seu_gem, features = "scDblFinder.score", group.by = "cells_per_GEM",
+        pt.size = 0)
+```
+
+# Discrepant GEM-level doublets
+
+We have some GEMs that we know contain multiple cells but have been called singlets by scDblFinder. We assume that these doublets are composed of the same or similar cell types, so let's check that out. 
+
+Make a flag on GEMs for discrepancy between known occupancy and scDblFinder class
+```{r}
+seu_gem$discrepant_doublet <- seu_gem$scDblFinder.class == 'singlet' &
+  seu_gem$cells_per_GEM == 2
+table(seu_gem$discrepant_doublet)
+```
+
+Flag the cells in those GEMs
+```{r}
+seu$discrepant_doublet <- seu$GEM_barcode %in% colnames(seu_gem[, seu_gem$discrepant_doublet == TRUE])
+seu_test <- seu[, seu$discrepant_doublet==TRUE]
+
+table(seu_test$cells_per_GEM)
+```
+
+Need to get the cell types of these cells as like a cell A, cell B situation. This is a fairly clunky way to do it, sorry. 
+First make a summary table where the rows are cell types and the columns are the GEM barcodes
+```{r}
+wrong_doublets <- tabyl(seu_test@meta.data, predicted.celltype.l1, GEM_barcode)
+rownames(wrong_doublets) <- wrong_doublets[,1]
+wrong_doublets <- wrong_doublets[,2:length(wrong_doublets)]
+```
+
+Now make lists of the first and second cell in each of these GEMs, order is arbitrary of course
+```{r}
+cell_A <- NULL
+cell_B <- NULL
+for (gem in colnames(wrong_doublets)) {
+  flag = 0
+  for (celltype in rownames(wrong_doublets)) {
+    if (wrong_doublets[celltype,gem] == 1 & flag == 0) {
+      cell_A = c(cell_A, celltype)
+      flag = 1
+    } else if (wrong_doublets[celltype,gem] == 1 & flag == 1) {
+      cell_B = c(cell_B, celltype)
+    } else if (wrong_doublets[celltype,gem] == 2) {
+       cell_A = c(cell_A, celltype)
+       cell_B = c(cell_B, celltype)
+    }
+  }
+}
+```
+
+Now put this into a matrix with cell A and cell B and the counts of each
+```{r}
+doublet_matrix <- cbind(cell_A, cell_B) %>% as.data.frame()
+test <- as.data.frame(table(doublet_matrix$cell_A, doublet_matrix$cell_B))
+colnames(test) <- c("cell_A", "cell_B", "Frequency")
+test <- as_tibble(test)
+```
+```{r}
+pe <- ggplot(test, aes(cell_A, cell_B)) +
+  geom_tile(aes(fill=Frequency)) +
+  geom_text(aes(label = Frequency)) + 
+  scale_fill_gradient(trans = 'log10') 
+pe
+```
+
+```{r}
+(pad / pe) + plot_annotation(tag_levels = 'a') + 
+  plot_layout(heights = c(1, 1, 2))
+```
+
+
+Some summary statistics. 
+```{r}
+sum(cell_A == cell_B) / length(cell_A)
+
+sum(cell_A == "CD4 T" & cell_B %in% c("CD8 T")) / length(cell_A)
+```
+

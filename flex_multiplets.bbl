@@ -78,6 +78,13 @@ Aaron T~L Lun, Samantha Riesenfeld, Tallulah Andrews, The~Phuong Dao, Tomas
   droplet-based single-cell {RNA} sequencing data.
 \newblock {\em Genome Biol.}, 20(1):63, March 2019.
 
+\bibitem{Mulqueen2021}
+Ryan~M Mulqueen, Dmitry Pokholok, Brendan~L O'Connell, Casey~A Thornton, Fan
+  Zhang, Brian~J O'Roak, Jason Link, Galip~Gürkan Yardımcı, Rosalie~C Sears,
+  Frank~J Steemers, and Andrew~C Adey.
+\newblock High-content single-cell combinatorial indexing.
+\newblock {\em Nat. Biotechnol.}, 39(12):1574--1580, December 2021.
+
 \bibitem{Neavin2024}
 Drew Neavin, Anne Senabouth, Himanshi Arora, Jimmy Tsz~Hang Lee, Aida
   Ripoll-Cladellas, {sc-eQTLGen Consortium}, Lude Franke, Shyam Prabhakar,

@@ -1,0 +1,312 @@
+---
+title: "10X PBMC cell pre-processing"
+author: "George Howitt"
+date: "2024-02-23"
+output: html_document
+---
+
+Pre-processing the 16-plex PBMC data set from 10X. Requires downloading the Gene Expression - Feature/cell matrix and Raw feature / cell matrix files from  https://www.10xgenomics.com/datasets/128k-human-pbmcs-stained-with-totalseqc-human-universal-cocktail
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(BiocStyle)
+  library(BiocParallel)
+  library(tidyverse)
+  library(here)
+  library(glue)
+  library(DropletUtils)
+  library(scran)
+  library(scater)
+  library(scuttle)
+  library(janitor)
+  library(cowplot)
+  library(patchwork)
+  library(scales)
+  library(readr)
+  library(Seurat)
+  library(celda)
+  library(decontX)
+  library(Azimuth)
+  library(Matrix)
+  library(scDblFinder)
+  library(scMerge)
+})
+```
+
+# Data loading
+
+Lists for sample names. Used in loading the CellRanger outputs. 
+```{r}
+batch_samples <- c("01_BC1_AB1", "02_BC2_AB2", "03_BC3_AB3", "04_BC4_AB4", "05_BC5_AB5", "06_BC6_AB6", "07_BC7_AB7", "08_BC8_AB8", "09_BC9_AB9", "10_BC10_AB10", "11_BC11_AB11", "12_BC12_AB12", "13_BC13_AB13", "14_BC14_AB14", "15_BC15_AB15", "16_BC16_AB16")
+```
+
+Helper functions for reading the per-sample counts into a SingleCellExperiment object.
+```{r}
+make_filtered_sce <- function(sample_name) {
+  counts <- Read10X_h5(here("data", "10X_PBMC_16plex", "HDF5", 
+                          paste0("16plex_human_PBMC_TotalSeqC_multiplex_PBMC_", sample_name,
+                                 "_count_sample_filtered_feature_bc_matrix.h5")))$`Gene Expression`
+  sce <- SingleCellExperiment(assays = c("counts" = counts))
+  sce$Sample <- sample_name
+  return(sce)
+}
+```
+
+## CellRanger calls
+
+Load in the counts for the barcodes called as cells by CellRanger 
+```{r}
+sce <- lapply(batch_samples, function(sn) make_filtered_sce(sn))
+sce <- sce_cbind(sce_list = sce, exprs = "counts", cut_off_batch = 0, cut_off_overall = 0)
+sce <- sce[rowSums(counts(sce)) > 0, ]
+
+sce
+```
+
+## Add metadata
+
+The first 17 characters of the barcodes are the GEM barcode and the last 9 characters are the sample barcode. Create a metadata feature for each of these.
+```{r}
+sce$Barcode <- unname(substring(colnames(sce), first = 1, last = 26))
+sce$GEM_barcode <- substring(sce$Barcode, first = 1, last = 17)
+sce$sample_barcode <- substring(sce$Barcode, first = 18, last = 26)
+
+sce$tissue <- "PBMC"
+```
+
+# Pre-processing
+
+## DecontX
+
+Correcting for ambient RNA with decontX, actually replacing the raw counts with the decontX counts. These can be forced to be integers rather than doubles later if necessary, but so far it doesn't seem to be an issue. 
+```{r}
+sce <- decontX(sce)
+
+assay(sce, "raw_counts") <- counts(sce)
+counts(sce) <- decontXcounts(sce)
+
+sce <- addPerCellQCMetrics(sce)
+```
+
+Filter on library size filter after running decontX
+```{r}
+sum(sce$sum < 250)
+sce <- sce[, sce$sum >= 250]
+```
+
+## Mitochondrial filtering
+
+Filtering out cells with high mitochondrial content. 
+```{r}
+is.mito <- grepl(pattern = "^MT", rownames(sce))
+sce <- addPerCellQCMetrics(sce, subsets = list(mito = is.mito))
+mito_outliers <- isOutlier(sce$subsets_mito_percent, type = "higher")
+sum(mito_outliers)
+
+sce <- sce[, !mito_outliers]
+```
+
+## Multiplet filtering
+
+We know that there will be some unidentified multiplets in our data, as higher-occupancy GEMs have many ways to include multiple cells from the same samples. Using scDblFinder as that seemed to have the best effect on the GEM-level counts.
+
+```{r}
+sce <- logNormCounts(sce) %>%
+  runPCA() %>%
+  runUMAP()
+```
+
+Run scDblFinder
+```{r}
+bp <- MulticoreParam(8, RNGseed=56213)
+sce <- scDblFinder(sce, clusters = T,
+                   BPPARAM=bp)
+```
+```{r}
+table(sce$scDblFinder.class)
+```
+
+Make Seurat object
+```{r}
+seu <- CreateSeuratObject(counts(sce), meta.data = as.data.frame(colData(sce)))
+```
+
+Try to free up some memory
+```{r}
+rm(sce)
+gc()
+```
+
+## Add GEM metadata to the cell-level objects 
+```{r}
+seu$cells_per_GEM <- table(seu$GEM_barcode)[seu$GEM_barcode]
+```
+
+```{r}
+table(seu$cells_per_GEM)
+```
+
+## Normalization and Azimuth annotation
+```{r}
+seu <- NormalizeData(seu, verbose = F) %>%
+  FindVariableFeatures(nfeatures = 2000, verbose = F) %>%
+  ScaleData(verbose = F) %>%
+  RunPCA(dims = 1:30, verbose = F) %>%
+  RunUMAP(dims = 1:30, verbose = F) 
+```
+```{r}
+temp <- seu
+options(timeout = max(10000, getOption("timeout")))
+temp <- RunAzimuth(temp,reference = "pbmcref")
+
+seu$predicted.celltype.l1 <- temp$predicted.celltype.l1
+seu$predicted.celltype.l1.score <- temp$predicted.celltype.l1.score
+seu$predicted.celltype.l2 <- temp$predicted.celltype.l2
+seu$predicted.celltype.l2.score <- temp$predicted.celltype.l2.score
+seu$predicted.celltype.l3 <- temp$predicted.celltype.l3
+seu$predicted.celltype.l3.score <- temp$predicted.celltype.l3.score
+```
+
+## Clean up no longer-useful metadata
+```{r}
+seu@meta.data <- seu@meta.data %>%
+  dplyr::select(c(nCount_RNA, nFeature_RNA, 
+                  Barcode, GEM_barcode, sample_barcode, 
+                  tissue, cells_per_GEM, 
+                  scDblFinder.class, scDblFinder.score,
+                  predicted.celltype.l1, predicted.celltype.l1.score, 
+                  predicted.celltype.l2, predicted.celltype.l2.score, 
+                  predicted.celltype.l3, predicted.celltype.l3.score))
+```
+
+## Clustering 
+
+```{r}
+seu <- FindNeighbors(seu, reduction = "pca", dims = 1:30) %>%
+  FindClusters(resolution = seq(0.1, 1, by = 0.1), algorithm = 3)
+```
+
+
+## Save
+```{r}
+saveRDS(seu,
+        here("data", "10X_PBMC_16plex", "SEU", "10X_PBMC.CellRanger.decontX.mito.filter.Azimuth.SEU.rds"))
+```
+
+```{r}
+seu <- readRDS(here("data", "10X_PBMC_16plex", "SEU", "10X_PBMC.CellRanger.decontX.mito.doublet.filter.Azimuth.SEU.rds"))
+```
+
+# Repeat after filtering doublets
+```{r}
+seu <- seu[, seu$scDblFinder.class == "singlet"]
+```
+
+## Normalization and Azimuth annotation
+
+```{r}
+seu <- NormalizeData(seu, verbose = F) %>%
+  FindVariableFeatures(nfeatures = 2000, verbose = F) %>%
+  ScaleData(verbose = F) %>%
+  RunPCA(dims = 1:30, verbose = F) %>%
+  RunUMAP(dims = 1:30, verbose = F) 
+```
+```{r}
+temp <- seu
+options(timeout = max(10000, getOption("timeout")))
+temp <- RunAzimuth(temp,reference = "pbmcref")
+
+seu$predicted.celltype.l1 <- temp$predicted.celltype.l1
+seu$predicted.celltype.l1.score <- temp$predicted.celltype.l1.score
+seu$predicted.celltype.l2 <- temp$predicted.celltype.l2
+seu$predicted.celltype.l2.score <- temp$predicted.celltype.l2.score
+seu$predicted.celltype.l3 <- temp$predicted.celltype.l3
+seu$predicted.celltype.l3.score <- temp$predicted.celltype.l3.score
+```
+
+## Clustering 
+
+```{r}
+seu <- FindNeighbors(seu, reduction = "pca", dims = 1:30) %>%
+  FindClusters(resolution = seq(0.1, 1, by = 0.1), algorithm = 3)
+```
+
+
+## Save pre-processed object
+
+```{r}
+saveRDS(seu,
+        here("data", "10X_PBMC_16plex", "SEU",
+             "10X_PBMC.CellRanger.decontX.mito.doublet.filter.Azimuth.SEU.rds"))
+```
+
+# Create GEM-level object
+
+Load cell-level filtered object
+```{r}
+seu <- readRDS(here("data", "10X_PBMC_16plex", "SEU", "10X_PBMC.CellRanger.decontX.mito.filter.Azimuth.SEU.rds"))
+```
+
+Load raw counts
+```{r}
+seu_raw <- Read10X_h5(here("data", "10X_PBMC_16plex", "HDF5", "16plex_human_PBMC_TotalSeqC_multiplex_Multiplex_count_raw_feature_bc_matrix.h5"))$`Gene Expression` %>%
+  CreateSeuratObject()
+```
+
+```{r}
+seu_raw$Barcode <- unname(substring(colnames(seu_raw), first = 1, last = 26))
+seu_raw$GEM_barcode <- substring(seu_raw$Barcode, first = 1, last = 17)
+```
+
+Filter to common genes
+```{r}
+seu_raw <- seu_raw[rownames(seu), ]
+```
+
+Filter empty GEMs
+```{r}
+seu_raw <- seu_raw[, seu_raw$GEM_barcode %in% seu$GEM_barcode]
+```
+
+Aggregate counts across probe barcodes into GEM-level counts
+```{r}
+makeGEMMatrix <- function(seu, assay = "RNA") {
+  counts_matrix <- seu[[assay]]$counts
+  dimnames(counts_matrix)[[2]] <- substring(dimnames(counts_matrix)[[2]], first = 1, last = 17)
+  counts_matrix <- as(counts_matrix, "TsparseMatrix")
+  nms <- colnames(counts_matrix)
+  uniquenms <- unique(nms)
+  GEM_counts <- sparseMatrix(i = counts_matrix@i+1,
+                 j = match(nms, uniquenms)[counts_matrix@j + 1],
+                 x = counts_matrix@x,
+                 dimnames = list(rownames(counts_matrix), uniquenms),
+                 repr = 'T')
+  return(as(GEM_counts, "CsparseMatrix"))
+}
+```
+
+```{r}
+seu_GEM <- makeGEMMatrix(seu_raw) %>%
+  CreateSeuratObject()
+```
+
+Add occupancy information
+```{r}
+seu_GEM$GEM_barcode <- colnames(seu_GEM)
+
+seu_GEM$cells_per_GEM <- table(seu$GEM_barcode)[colnames(seu_GEM)]
+```
+
+Save
+```{r}
+saveRDS(seu_GEM,
+        here("data", "10X_PBMC_16plex", "SEU",
+             "10X_PBMC.GEM_counts.raw.SEU.rds"))
+```
+
+
+
+
+
+
+

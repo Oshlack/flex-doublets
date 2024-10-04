@@ -1,0 +1,401 @@
+---
+title: "Estimating the resolvable fraction of Flex 'cells'"
+author: "George Howitt"
+date: "2024-09-11"
+output: html_document
+---
+
+```{r}
+library(stats)
+library(partitions)
+library(here)
+library(tidyverse)
+library(patchwork)
+library(ggplot2)
+library(BiocStyle)
+library(BiocParallel)
+library(glue)
+library(scran)
+library(scater)
+library(scuttle)
+library(janitor)
+library(cowplot)
+library(scales)
+library(readr)
+library(Seurat)
+library(Azimuth)
+library(Matrix)
+library(lubridate)
+library(scds)
+library(scDblFinder)
+```
+
+By design, Flex has a lot of doublets. In fact, most of the cells are in droplets with one or more other cells. So long as the cells are from different samples, this isn't a worry, but we need to know the fraction of cells in multiplets that are from the same sample as one another. 
+
+# Observed doublet rate vs 10X rate
+
+We have 10 16-plex Flex runs, with 9 from the earlyAIR data set and one from the public 10X PBMC data. 
+
+Loading the summary information, number of cells, mean droplet occupancy, doublet fraction and data set
+```{r}
+GEM_data <- readRDS(here("data", "16plex_summary_data.rds"))
+```
+
+The Flex documentation estimates the rate of unresolvable doublets to be 0.8% per 1000 cells per sample
+```{r}
+doublet_fraction_10X <- function(Ncells, Nsamples = 16) {
+  return(0.008*Ncells/1000/Nsamples)
+}
+```
+
+Plotting the scDblFinder doublet fraction vs number of cells, with the 10X prediction included
+```{r}
+p1 <- ggplot(GEM_data) +
+  geom_point(aes(x = Ncells, y = Doublet_fraction, color = dataset)) +
+  geom_smooth(aes(x = Ncells, y = Doublet_fraction), method = 'lm', formula = y~x) +
+  xlab("Number of cells") +
+  ylab("Doublet fraction (scDblFinder)") + 
+  geom_function(fun = function(Ncells) doublet_fraction_10X(Ncells), linetype = 'dashed')  
+p1
+```
+
+What is the fit to the observed values?
+```{r}
+coef(lm(GEM_data$Doublet_fraction~GEM_data$Ncells)) * 100000
+```
+
+# Computing unresolvable cell fraction
+
+The number of possible configurations of a k-th order multiplet for a pool with n samples is given by (equation 1)
+
+M_k(n) = (n + k - 1)! / ((n - 1)! k!)
+
+```{r}
+multiplet_configs <- function(n, k) {
+  M_k = factorial(n + k - 1) / (factorial(n - 1) * factorial(k))
+  return(M_k)
+  }
+```
+
+If a multiplet contains k cells, then the number of possible arrangements of the cells can be considered as the partitions of k. E.g. for k = 5, we can have 
+
+5 (all cells from the same sample)
+4 + 1 (4 cells from 1 sample, 1 from another)
+3 + 2 
+3 + 1 + 1
+2 + 2 + 1
+2 + 1 + 1 + 1
+1 + 1 + 1 + 1 + 1 (all cells from different samples)
+
+If repeated samples in the same droplet are unresolvable, then the number of resolvable cells in a given partition is the number of times 1 appears.
+
+The total number of 1s in all partitions of an integer k is given by 
+sum_{j = 0}^{k-1} p(j) (https://oeis.org/A000070)
+
+But each partition doesn't have the same probability. What we need to do is compute the number of configurations corresponding to each partition. 
+
+Let's consider the example above. 
+For the first partition, there are nC1 ways of choosing the single sample that is repeated 5 times. 
+For the second, there are nC1 ways to choose the first sample (repeated 4 times), then (n-1)C1 ways to choose the next. Same for the third. For the fourth, there are nC1 to choose the first, then (n-1)C2 to choose the remaining 2. For the fifth, nC2, (n-2)c1. For the sixth, nC1, (n-1)C4, then finally nC5.
+In general, we get Equation 4 in the paper. 
+
+Putting this into a function. 
+```{r}
+partition_configs <- function(n, k) {
+  out = NULL #List that gets output by the function
+  p = parts(k) #Matrix of partitions of k
+  
+  for (i in 1:ncol(p)) { 
+    part = p[,i]
+    part = part[part != 0] #Remove zeros
+    u = unique(part) #Identify unique entries in the partition
+    
+    #Dummy variables
+    counter = n #Keeps track of how many unique samples are left to choose from
+    final = 1 # Output for the below loop (we are computing a product)
+    
+    for (j in u) { #j is a counter of the unique integers in the partition
+      l = sum(part == j) #Number of entries of j in the partition
+      combos = choose(counter, l) #Number of non-repeating combinations of choosing j
+      counter = counter - l #Decrement n by l each time since there are now fewer unique samples remaining
+      final = final*combos
+    }
+    out = c(out,final)
+  }
+  return(out)
+}
+```
+
+Now we know how many configurations each partition has, we can look at the fraction of cells that are resolvable within these partitions. Cells corresponding to ones in the partitions are resolvable, so the resolvable fraction is the fraction of ones in the partition, times the fraction of combinations in that partition, summed over all partitions. 
+```{r}
+resolvable_fraction <- function(n, k) {
+  out = NULL #output of the function
+  part_configs = partition_configs(n, k)
+  p = parts(k)
+  
+  for (i in 1:ncol(p)) { # Go through each part one by one
+    part = p[,i]
+    part = part[part != 0] #Remove zeros
+    resolvable_cells = sum(part == 1)
+    f = resolvable_cells / k #Fraction of resolvable cells in this part
+    res_fraction = f*part_configs[i]
+    out = c(out, res_fraction)
+  }
+  return(sum(out)/multiplet_configs(n,k))
+}
+```
+
+```{r}
+plot(1:16, sapply(1:16, function(k) resolvable_fraction(16, k)),
+     xlim = c(1,16), ylim = c(0.2,1),
+     xlab = "GEM occupancy",
+     ylab = "Fraction of resolvable cells", pch =19,
+     main = "n = 16"
+     )
+```
+
+What about for n = 4?
+```{r}
+plot(1:8, sapply(1:8, function(k) resolvable_fraction(4, k)),
+     xlab = "GEM occupancy",
+     ylab = "Fraction of resolvable cells",
+     main = "n = 4",
+     pch = 19
+     )
+```
+
+But! The above applies for the actual cells, but not what is actually observed in data. What we want to know is the observed multiplet rate, rather than the true resolvable cell fraction. The thing is that if a droplet looks like 2 + 2 + 1, then the fraction of cells that are resolvable is 20%, but only 3 cells will be observed, so the observed doublet fraction is going to be 66%, which boosts the resolvable fraction. 
+
+Let's make a new function. 
+
+For a partition of k, the length of the partition l is the "apparent" occupancy, i.e. the number of unique barcodes that will turn up in the counts matrix. We want to determine the fraction of these. 
+
+```{r}
+resolvable_fraction_observed <- function(n, k) {
+  out = NULL #output of the function
+  part_configs = partition_configs(n, k)
+  p = parts(k)
+  
+  for (i in 1:ncol(p)) { # Go through each partition one by one
+    part = p[,i]
+    part = part[part != 0] #Remove zeros
+    resolvable_cells = sum(part == 1)
+    apparent_length = length(part)
+    f = resolvable_cells / apparent_length #Fraction of observed cells that are resolvable
+    res_fraction = f*part_configs[i]  
+    out = c(out, res_fraction)
+  }
+  return(sum(out)/multiplet_configs(n,k))
+}
+```
+
+```{r}
+df_n4 <- data.frame(k = 1:4, 
+                     f = sapply(1:4, function(k) resolvable_fraction_observed(4, k)))
+df_n16 <- data.frame(k = 1:16, 
+                     f = sapply(1:16, function(k) resolvable_fraction_observed(16, k)))
+```
+```{r}
+p1 <- ggplot(df_n4, aes(x = k, y = f)) + 
+  geom_point() + 
+  ggtitle("4-plex") + 
+  xlab("Droplet occupancy k") +
+  ylab("F") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black"))
+
+p2 <- ggplot(df_n16, aes(x = k, y = f)) + 
+  geom_point() + 
+  ggtitle("16-plex") +
+  xlab("Droplet occupancy k") +
+  ylab("F") + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black"))
+  
+(p1 / p2) + plot_annotation(title = "Resolvable fraction of cells in Flex data",
+                            tag_levels = 'a')
+```
+
+# Expected number of unresolved cells in Flex data
+
+So we want to link this to the distribution of the GEM occupancies. 
+According to 10X, that is a Poisson distribution (https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/algorithms/frp#call-cells), but I think they've been a bit careless with their language, and it's actually a zero-truncated Poisson distribution, which is not the same (https://en.wikipedia.org/wiki/Zero-truncated_Poisson_distribution).
+
+Let's examine different distributions for the droplet occupancy. 
+First, load in the GEM-level counts of the PBMC data set. 
+
+```{r}
+seu_GEM <- readRDS(here("data", "10X_PBMC_16plex", "SEU",
+             "10X_PBMC.GEM_counts.raw.SEU.rds"))
+```
+
+The Poisson distribution is 
+p(k) = lambda^k exp(-lambda) / k!, 
+where the best fit value for lambda is the sample mean. If we take this, and apply it to all of the data (including empty droplets) we find that the resulting fit is far too steep. 
+Let's ignore the empty droplets and just fit this distribution on the k >= 1 droplets
+
+The zero-truncated Poisson distribution has support only for k > 0, and is 
+p(k) = lambda^k / (exp(lambda) - 1)k! , 
+The sample estimate for lambda is obtained by solving lambda / (1 - exp(-lambda)) = X, 
+where X is the sample mean. 
+
+Another possibility is an exponential distribution, 
+p(x) = lambda exp(-lambda x),
+where the sample estimate for lambda = 1/X, where X is the sample mean. 
+
+Making functions for each distribution, in all these functions the sample mean is called X
+```{r}
+pois <- function(k, X) {
+  return(X^k * exp(-X) / factorial(k))
+}
+```
+
+```{r}
+ztPois <- function(k, X) {
+  lambda = uniroot(function(x) x / (1 - exp(-x)) - X, interval = c(0.1,5))$root
+  return(lambda^k / ((exp(lambda) - 1) * factorial(k)))
+}
+```
+
+```{r}
+expDist <- function(x, X) {
+  return(1 / X * exp(-x / X))
+}
+```
+
+How do these look on the GEM occupancy data?
+```{r}
+ggplot(seu_GEM@meta.data %>%
+         mutate(cells_per_GEM = as.factor(seu_GEM$cells_per_GEM))) +
+  geom_histogram(mapping = aes(x = cells_per_GEM, fill = cells_per_GEM), 
+                 stat = 'count') +
+  ylab("Count") + 
+  xlab("Observed occupancy l") + 
+  NoLegend() +
+  geom_function(fun = function(cells_per_GEM) ncol(seu_GEM)*ztPois(cells_per_GEM, X = mean(seu_GEM$cells_per_GEM))) + 
+  geom_function(fun = function(cells_per_GEM) ncol(seu_GEM) * pois(cells_per_GEM, X = mean(seu_GEM$cells_per_GEM)), linetype = "dashed") + 
+  geom_function(fun = function(cells_per_GEM) ncol(seu_GEM)*expDist(cells_per_GEM, X = mean(seu_GEM$cells_per_GEM)), linetype = "dotted")  
+  
+```
+
+## Comparison to data
+
+Get the doublet fraction and mean GEM occupancy from the GEM_data dataframe
+
+Function for computing the doublet fraction given mean occupancy X and number of samples n
+```{r}
+resFrac <- function(X, n = 16) {
+  return(sum(sapply(1:7, function(k) k*ztPois(k, X) * (1-resolvable_fraction_observed(n,k)))) / 
+           sum(sapply(1:7, function(k) k*ztPois(k, X))))
+}
+```
+
+
+```{r}
+df <- data.frame(x = seq(1.1,2.5,0.01), 
+                    f = sapply(seq(1.1,2.5,0.01), function(x) resFrac(x, 4)))
+
+p1 <- ggplot(df, aes(x = x)) + 
+  geom_function(fun = function(x) Vectorize(resFrac)(x, 4)) +
+  xlim(c(1.1,2.5)) +
+  ylim(c(0.,0.5)) +
+  ylab("Doublet fraction") +
+  theme(axis.title.x = element_blank()) +
+  ggtitle("4-plex")
+
+p2 <- ggplot(GEM_data, aes(x = Mean_occupancy, y = Doublet_fraction, color = dataset)) +
+  geom_point() +
+  xlim(c(1.1,2.5)) +
+  ylim(c(0.,0.5)) +
+  geom_function(fun = function(Mean_occupancy) Vectorize(resFrac)(Mean_occupancy), 
+                color = 'black') +
+  xlab("Mean droplet occupancy") +
+  ylab("Doublet fraction") +
+  ggtitle("16-plex")
+
+(p1 / p2) + plot_annotation(tag_levels = 'a') & theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black"))
+```
+
+# Apparent occupancy
+
+For a partition of k, the length of the partition l is the "apparent" occupancy, i.e. the number of unique barcodes that will turn up in the counts matrix. For a given k, what is the probability of observing l? 
+
+```{r}
+apparent_fraction <- function(n, k, l) {
+  out = NULL #output of the function
+  part_configs = partition_configs(n, k)
+  p = parts(k)
+  
+  apparent_configs = 0 #Counter variable
+  
+  for (i in 1:ncol(p)) { # Go through each part one by one
+    part = p[,i]
+    part = part[part != 0] #Remove zeros
+    if (length(part) == l) {
+      apparent_configs = apparent_configs + part_configs[i]
+    }
+    }
+  return(apparent_configs/multiplet_configs(n,k))
+}
+```
+
+```{r}
+apparent_fraction(16,1,1)
+
+sum(sapply(1:5, function(l) apparent_fraction(16,5,l)))
+```
+
+This function seems to work. How does it look for different k's?
+
+```{r}
+par(mfrow = c(3,3),
+    mar = c(4,4,1,1))
+for (k in 1:9) {
+  plot(1:9, sapply(1:9, function(l) apparent_fraction(16, k, l)),
+     pch = 19,
+     xlab = "l",
+     ylab = "p(l | k)",
+     main = paste0("k = ", k))
+}
+```
+
+What about for n = 4?
+
+```{r}
+par(mfrow = c(2,2),
+    mar = c(4,4,1,1))
+for (k in 1:4) {
+  plot(1:4, sapply(1:4, function(l) apparent_fraction(4, k, l)),
+     pch = 19,
+     xlab = "l",
+     ylab = "p(l | k)",
+     main = paste0("k = ", k))
+}
+```
+
+Interesting. And if we look at the average value of l as a function of k?
+```{r}
+plot(1:16, sapply(1:16, function(k) 
+  sum(sapply(1:k, function(l) l*apparent_fraction(16, k, l)))),
+  pch = 19,
+  xlab = "k",
+  ylab = "<l>",
+  main = "Mean apparent occupancy vs true, n = 16"
+  )
+```
+
+```{r}
+plot(1:4, sapply(1:4, function(k) 
+  sum(sapply(1:k, function(l) l*apparent_fraction(4, k, l)))),
+  pch = 19,
+  xlab = "k",
+  ylab = "<l>",
+  main = "Apparent occupancy vs true, n = 4"
+  )
+```
+
+
+
+
+

@@ -24,6 +24,7 @@
 \newcplabel{^_1}{1}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
 \newlabel{sec:introduction}{{1}{1}{Introduction}{section.1}{}}
+\citation{Mulqueen2021}
 \citation{Neavin2024}
 \citation{Curion2024}
 \citation{Zhang2024}
@@ -34,21 +35,21 @@
 \citation{Germain2021}
 \citation{Xiong2022,Neavin2024}
 \citation{Hao2021}
+\citation{Germain2021}
+\citation{10X_flex_protocol}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Results}{2}{section.2}\protected@file@percent }
 \newlabel{sec:results}{{2}{2}{Results}{section.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {{2.1}}Flex data sets}{2}{subsection.2.1}\protected@file@percent }
 \newlabel{subsec: data}{{{2.1}}{2}{Flex data sets}{subsection.2.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {{2.2}}Testing doublet finders with known multiplets}{2}{subsection.2.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces  a)-d) Performance of doublet-finders on droplets with occupancy determined by CellRanger calls. Each bar represents the identified number of cells in a droplet based on the sample deconvolution. The blue portion represents the number of detected doublets from the doublet detection tool. Ideally, a tool will only detect singlets where there is one cell per GEM and doublets when there are more than one cell. Annotation of cell types in droplets containing two cells misclassified as singlets by scDblFinder. The majority (>50\%) of cells misclassified as singlets are homotypic doublets. \relax }}{2}{figure.caption.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {{2.2}}Verification of doublet finders with known multiplets}{2}{subsection.2.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces  a)-d) Performance of doublet-finders on droplets with occupancy determined by CellRanger calls. Each bar represents the identified number of cells in a droplet based on the sample deconvolution. The blue portion represents the number of detected doublets from the doublet detection tool. Ideally, a tool will only detect singlets where there is one cell per droplet and doublets when there is more than one cell. e) Cell type composition of droplets containing two cells called by CellRanger which are called singlets by scDblFinder. The majority (>50\%) of cells misclassified as singlets are homotypic doublets. \relax }}{2}{figure.caption.1}\protected@file@percent }
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{fig:doublet_finder_comparison}{{1}{2}{a)-d) Performance of doublet-finders on droplets with occupancy determined by CellRanger calls. Each bar represents the identified number of cells in a droplet based on the sample deconvolution. The blue portion represents the number of detected doublets from the doublet detection tool. Ideally, a tool will only detect singlets where there is one cell per GEM and doublets when there are more than one cell. Annotation of cell types in droplets containing two cells misclassified as singlets by scDblFinder. The majority (>50\%) of cells misclassified as singlets are homotypic doublets. \relax }{figure.caption.1}{}}
-\citation{Germain2021}
-\citation{10X_flex_protocol}
+\newlabel{fig:doublet_finder_comparison}{{1}{2}{a)-d) Performance of doublet-finders on droplets with occupancy determined by CellRanger calls. Each bar represents the identified number of cells in a droplet based on the sample deconvolution. The blue portion represents the number of detected doublets from the doublet detection tool. Ideally, a tool will only detect singlets where there is one cell per droplet and doublets when there is more than one cell. e) Cell type composition of droplets containing two cells called by CellRanger which are called singlets by scDblFinder. The majority (>50\%) of cells misclassified as singlets are homotypic doublets. \relax }{figure.caption.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {{2.3}}Measuring multiplet rates in Flex data}{2}{subsection.2.3}\protected@file@percent }
 \citation{Andrews1998}
 \citation{Andrews1998}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Doublet fraction (from \texttt  {scDblFinder}) vs number of cells called for 10 16-plex Flex data sets. The blue line indicates a linear fit to the data. The black dashed line is the estimated rate from the Flex user guide. \relax }}{3}{figure.caption.2}\protected@file@percent }
-\newlabel{fig:doublet rate 16-plex}{{2}{3}{Doublet fraction (from \texttt {scDblFinder}) vs number of cells called for 10 16-plex Flex data sets. The blue line indicates a linear fit to the data. The black dashed line is the estimated rate from the Flex user guide. \relax }{figure.caption.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {{2.3}}Measuring multiplet rates in Flex data}{3}{subsection.2.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Doublet fraction (from scDblFinder) vs number of cells called for 10 16-plex Flex data sets. The blue line indicates a linear fit to the data. The black dashed line is the estimated rate from the Flex user guide. \relax }}{3}{figure.caption.2}\protected@file@percent }
+\newlabel{fig:doublet rate 16-plex}{{2}{3}{Doublet fraction (from scDblFinder) vs number of cells called for 10 16-plex Flex data sets. The blue line indicates a linear fit to the data. The black dashed line is the estimated rate from the Flex user guide. \relax }{figure.caption.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {{2.4}}Estimating the resolvable cell fraction}{3}{subsection.2.4}\protected@file@percent }
 \newlabel{subsec:multiplet theory}{{{2.4}}{3}{Estimating the resolvable cell fraction}{subsection.2.4}{}}
 \newlabel{eq:multiplet_configurations}{{1}{3}{Estimating the resolvable cell fraction}{equation.2.1}{}}
@@ -56,31 +57,30 @@
 \newlabel{eq:combinations}{{3}{3}{Estimating the resolvable cell fraction}{equation.2.3}{}}
 \newlabel{eq: partition combinations}{{4}{3}{Estimating the resolvable cell fraction}{equation.2.4}{}}
 \newlabel{eq:chosen_sum}{{5}{3}{Estimating the resolvable cell fraction}{equation.2.5}{}}
+\newlabel{eq:continuity equation}{{6}{3}{Estimating the resolvable cell fraction}{equation.2.6}{}}
 \citation{Germain2021}
 \citation{10X_flex_protocol}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Fraction of resolvable cells $F(n, k)$ vs occupancy $k$ for $n = 4$ (top) and $n = 16$ (bottom). \relax }}{4}{figure.caption.3}\protected@file@percent }
-\newlabel{fig:resolvable_fraction}{{3}{4}{Fraction of resolvable cells $F(n, k)$ vs occupancy $k$ for $n = 4$ (top) and $n = 16$ (bottom). \relax }{figure.caption.3}{}}
-\newlabel{eq:continuity equation}{{6}{4}{Estimating the resolvable cell fraction}{equation.2.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Fraction of resolvable cells $F(n, k)$ vs occupancy $k$ for (a) $n = 4$ and (n) $n = 16$. \relax }}{4}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:resolvable_fraction}{{3}{4}{Fraction of resolvable cells $F(n, k)$ vs occupancy $k$ for (a) $n = 4$ and (n) $n = 16$. \relax }{figure.caption.3}{}}
 \newlabel{eq:resolvable fraction}{{7}{4}{Estimating the resolvable cell fraction}{equation.2.7}{}}
 \newlabel{eq: poisson_distribution}{{8}{4}{Estimating the resolvable cell fraction}{equation.2.8}{}}
 \newlabel{eq: poisson expectation value}{{9}{4}{Estimating the resolvable cell fraction}{equation.2.9}{}}
 \newlabel{eq:pdf approximation}{{10}{4}{Estimating the resolvable cell fraction}{equation.2.10}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Calculated fraction of multiplets in Flex data vs mean droplet occupancy for $n = 4$ (top) and $n = 16$ (bottom). Coloured points indicate doublet fraction determined from \texttt  {scDblFinder} and observed mean droplet occupancy from earlyAIR and PBMC data sets. \relax }}{4}{figure.caption.4}\protected@file@percent }
-\newlabel{fig: resolvable fraction observed}{{4}{4}{Calculated fraction of multiplets in Flex data vs mean droplet occupancy for $n = 4$ (top) and $n = 16$ (bottom). Coloured points indicate doublet fraction determined from \texttt {scDblFinder} and observed mean droplet occupancy from earlyAIR and PBMC data sets. \relax }{figure.caption.4}{}}
 \newlabel{eq:cells_at_occupancy}{{11}{4}{Estimating the resolvable cell fraction}{equation.2.11}{}}
 \newlabel{eq:dataset resolvable fraction}{{12}{4}{Estimating the resolvable cell fraction}{equation.2.12}{}}
-\citation{Yang2020}
-\citation{Griffiths2018,Lun2019}
-\citation{Germain2021}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Calculated fraction of multiplets in Flex data vs mean droplet occupancy given the number of multiplexed samples a) $n = 4$ and b) $n = 16$. Coloured points indicate doublet fraction determined from scDblFinder and observed mean droplet occupancy from earlyAIR and PBMC data sets. \relax }}{4}{figure.caption.4}\protected@file@percent }
+\newlabel{fig: resolvable fraction observed}{{4}{4}{Calculated fraction of multiplets in Flex data vs mean droplet occupancy given the number of multiplexed samples a) $n = 4$ and b) $n = 16$. Coloured points indicate doublet fraction determined from scDblFinder and observed mean droplet occupancy from earlyAIR and PBMC data sets. \relax }{figure.caption.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces  a) Number of clusters as a function of cluster resolution for PBMC data set before (blue triangles) and after (red circles) removal of doublets identified by scDblFinder. b) Number of cells in each cluster in the PBMC data set at resolution 0.4, coloured by fraction of doublets. c) same as b) but with proportions instead of total counts. d) UMAP showing cells in the PBMC data set with labels from Azimuth. e) Same as d) but showing only cells from clusters with $\geq 75\%$ doublets. f) UMAP with Azimuth labels computed after removing doublets. \relax }}{5}{figure.caption.5}\protected@file@percent }
+\newlabel{fig:doublet_clusters}{{5}{5}{a) Number of clusters as a function of cluster resolution for PBMC data set before (blue triangles) and after (red circles) removal of doublets identified by scDblFinder. b) Number of cells in each cluster in the PBMC data set at resolution 0.4, coloured by fraction of doublets. c) same as b) but with proportions instead of total counts. d) UMAP showing cells in the PBMC data set with labels from Azimuth. e) Same as d) but showing only cells from clusters with $\geq 75\%$ doublets. f) UMAP with Azimuth labels computed after removing doublets. \relax }{figure.caption.5}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {{2.5}}Doublet-finding identifies spurious clusters}{5}{subsection.2.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {3}Discussion}{5}{section.3}\protected@file@percent }
 \newlabel{sec:discussion}{{3}{5}{Discussion}{section.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces  a) Number of clusters as a function of cluster resolution for PBMC data set before (red crosses) and after (blue circles) removal of doublets identified by scDblFinder. b) Number of cells in each cluster in the PBMC data set at resolution 0.4, coloured by fraction of doublets. c) same as b) but with proportions instead of total counts. d) UMAP showing cells in the PBMC data set with labels from Azimuth. e) Same as d) but showing only cells from clusters with $\geq 75\%$ doublets. f) UMAP with Azimuth labels computed after removing doublets. \relax }}{5}{figure.caption.5}\protected@file@percent }
-\newlabel{fig:doublet_clusters}{{5}{5}{a) Number of clusters as a function of cluster resolution for PBMC data set before (red crosses) and after (blue circles) removal of doublets identified by scDblFinder. b) Number of cells in each cluster in the PBMC data set at resolution 0.4, coloured by fraction of doublets. c) same as b) but with proportions instead of total counts. d) UMAP showing cells in the PBMC data set with labels from Azimuth. e) Same as d) but showing only cells from clusters with $\geq 75\%$ doublets. f) UMAP with Azimuth labels computed after removing doublets. \relax }{figure.caption.5}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Methods}{5}{section.4}\protected@file@percent }
-\newlabel{sec:methods}{{4}{5}{Methods}{section.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {{4.1}}Single-cell data pre-processing strategy}{5}{subsection.4.1}\protected@file@percent }
-\newlabel{subsec:preprocessing}{{{4.1}}{5}{Single-cell data pre-processing strategy}{subsection.4.1}{}}
+\citation{10X_flex_protocol}
+\citation{Yang2020}
+\citation{Griffiths2018,Lun2019}
+\citation{Germain2021}
+\citation{Bais2020}
+\citation{Germain2021}
 \bibstyle{plain}
 \bibdata{flex_multiplets}
 \bibcite{Andrews1998}{{1}{}{{}}{{}}}
@@ -93,18 +93,26 @@
 \bibcite{Hao2021}{{8}{}{{}}{{}}}
 \bibcite{Howitt2023}{{9}{}{{}}{{}}}
 \bibcite{Lun2019}{{10}{}{{}}{{}}}
-\bibcite{Neavin2024}{{11}{}{{}}{{}}}
-\bibcite{Xi2021}{{12}{}{{}}{{}}}
-\bibcite{Xiong2022}{{13}{}{{}}{{}}}
-\bibcite{Yang2020}{{14}{}{{}}{{}}}
-\bibcite{Zhang2024}{{15}{}{{}}{{}}}
-\global\@namedef{@lastpage@}{6}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Methods}{6}{section.4}\protected@file@percent }
+\newlabel{sec:methods}{{4}{6}{Methods}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {{4.1}}Single-cell data generation}{6}{subsection.4.1}\protected@file@percent }
+\newlabel{subsec:data_generation}{{{4.1}}{6}{Single-cell data generation}{subsection.4.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {{4.2}}Single-cell data pre-processing strategy}{6}{subsection.4.2}\protected@file@percent }
+\newlabel{subsec:preprocessing}{{{4.2}}{6}{Single-cell data pre-processing strategy}{subsection.4.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {{4.3}}Overview of doublet-finding tools}{6}{subsection.4.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {5}Data availability}{6}{section.5}\protected@file@percent }
 \newlabel{sec:data availability}{{5}{6}{Data availability}{section.5}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {6}Acknowledgments}{6}{section.6}\protected@file@percent }
 \newlabel{acknowledgements}{{6}{6}{Acknowledgments}{section.6}{}}
+\bibcite{Mulqueen2021}{{11}{}{{}}{{}}}
+\bibcite{Neavin2024}{{12}{}{{}}{{}}}
+\bibcite{Xi2021}{{13}{}{{}}{{}}}
+\bibcite{Xiong2022}{{14}{}{{}}{{}}}
+\bibcite{Yang2020}{{15}{}{{}}{{}}}
+\bibcite{Zhang2024}{{16}{}{{}}{{}}}
+\global\@namedef{@lastpage@}{7}
 \expandafter\ifx\csname c@myauthcount@totc\endcsname\relax\newcounter{myauthcount@totc}\fi\setcounter{myauthcount@totc}{13}
 \expandafter\ifx\csname c@myhistorycount@totc\endcsname\relax\newcounter{myhistorycount@totc}\fi\setcounter{myhistorycount@totc}{3}
 \expandafter\ifx\csname c@myaddcount@totc\endcsname\relax\newcounter{myaddcount@totc}\fi\setcounter{myaddcount@totc}{8}
 \providecommand\NAT@force@numbers{}\NAT@force@numbers
-\gdef \@abspage@last{6}
+\gdef \@abspage@last{7}

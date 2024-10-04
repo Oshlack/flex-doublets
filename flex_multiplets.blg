@@ -4,45 +4,45 @@ The top-level auxiliary file: flex_multiplets.aux
 The style file: plain.bst
 Database file #1: flex_multiplets.bib
 Warning--there's a number but no series in Andrews1998
-You've used 15 entries,
+You've used 16 entries,
             2118 wiz_defined-function locations,
-            603 strings with 8763 characters,
-and the built_in function-call counts, 7887 in all, are:
-= -- 659
-> -- 728
+            610 strings with 9089 characters,
+and the built_in function-call counts, 8519 in all, are:
+= -- 714
+> -- 786
 < -- 1
-+ -- 291
-- -- 274
-* -- 802
-:= -- 1429
-add.period$ -- 47
-call.type$ -- 15
-change.case$ -- 180
++ -- 314
+- -- 296
+* -- 869
+:= -- 1540
+add.period$ -- 50
+call.type$ -- 16
+change.case$ -- 194
 chr.to.int$ -- 0
-cite$ -- 16
-duplicate$ -- 164
-empty$ -- 370
-format.name$ -- 274
-if$ -- 1463
+cite$ -- 17
+duplicate$ -- 175
+empty$ -- 399
+format.name$ -- 296
+if$ -- 1580
 int.to.chr$ -- 0
-int.to.str$ -- 15
-missing$ -- 15
-newline$ -- 79
-num.names$ -- 30
-pop$ -- 157
+int.to.str$ -- 16
+missing$ -- 16
+newline$ -- 84
+num.names$ -- 32
+pop$ -- 169
 preamble$ -- 1
-purify$ -- 167
+purify$ -- 180
 quote$ -- 0
-skip$ -- 102
+skip$ -- 109
 stack$ -- 0
-substring$ -- 299
-swap$ -- 17
+substring$ -- 335
+swap$ -- 18
 text.length$ -- 1
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 58
+type$ -- 62
 warning$ -- 1
-while$ -- 46
-width$ -- 17
-write$ -- 169
+while$ -- 50
+width$ -- 18
+write$ -- 180
 (There was 1 warning)

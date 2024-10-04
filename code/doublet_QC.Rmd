@@ -1,0 +1,211 @@
+---
+title: "Doublet QC and downsampling"
+author: "George Howitt"
+date: "2024-09-19"
+output: html_document
+---
+
+Looking at how doublet removal affects clustering. The 10X PBMC data set has been clustered at resolutions between 0.1 and 1. 
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(BiocStyle)
+  library(BiocParallel)
+  library(tidyverse)
+  library(here)
+  library(glue)
+  library(janitor)
+  library(cowplot)
+  library(patchwork)
+  library(scales)
+  library(readr)
+  library(Seurat)
+  library(Matrix)
+})
+```
+
+# Data loading
+
+Load the PBMC data with the doublets identified but not removed and with doublets removed.
+
+```{r}
+seu <- readRDS(here("data", "10X_PBMC_16plex", "SEU",
+             "10X_PBMC.CellRanger.decontX.mito.doublet.filter.Azimuth.SEU.rds"))
+
+seu_doublets <- readRDS(here("data", "10X_PBMC_16plex", "SEU",
+             "10X_PBMC.CellRanger.decontX.mito.filter.Azimuth.SEU.rds"))
+```
+
+# Is clustering driven by doublets?
+
+Number of clusters vs resolution
+
+```{r}
+cluster_resolutions <- c(seq(0.1,0.9,0.1),1)
+cluster_df <- data.frame(resolution = cluster_resolutions,
+                 No = sapply(cluster_resolutions, function(i) length(levels(unlist(seu[[paste0("RNA_snn_res.",i)]])))),
+                 Yes = sapply(cluster_resolutions, function(i) length(levels(unlist(seu_doublets[[paste0("RNA_snn_res.",i)]]))))) %>%
+  pivot_longer(cols = c(No, Yes), names_to = 'Doublets included?') 
+```
+
+```{r}
+pa <- ggplot(cluster_df) + 
+  geom_point(aes(x = resolution, y = value, color = `Doublets included?`, shape = `Doublets included?`), size = 2) + 
+  xlab("Clustering resolution") + 
+  ylab("N clusters") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black"),
+legend.text = element_text(size = 6),
+        legend.title = element_text(size = 8))
+pa
+```
+
+```{r}
+library(clustree)
+clustree(seu_doublets)
+clustree(seu)
+```
+
+Choosing resolution of 0.4 going forward
+
+```{r}
+pb <- ggplot(seu_doublets@meta.data, aes(x = RNA_snn_res.0.4, fill = scDblFinder.class)) + 
+  xlab("Cluster") +
+  geom_bar() + NoLegend() + 
+  theme(axis.text.x = element_text(size=4))
+
+pc <- ggplot(seu_doublets@meta.data, aes(x = RNA_snn_res.0.4, fill = scDblFinder.class)) + 
+  xlab("Cluster") +
+  geom_bar(position = 'fill') + 
+  theme(axis.text.x = element_text(size=4),
+        legend.text = element_text(size = 6),
+        legend.title = element_text(size = 8))
+  
+pb | pc
+```
+
+How many clusters are dominated by doublets?
+```{r}
+doublet_fraction <- sum(seu_doublets$scDblFinder.class == 'doublet')/ncol(seu_doublets)
+t1 <- tabyl(seu_doublets@meta.data, RNA_snn_res.0.4, scDblFinder.class) %>% adorn_percentages()
+sum(t1$doublet > 2 * doublet_fraction)
+```
+
+How many clusters have more than twice the average fraction of doublets?
+```{r}
+cluster_doublet_fractions <- sapply(levels(seu_doublets$RNA_snn_res.0.4),
+                                    function(cluster) sum(seu_doublets$RNA_snn_res.0.4 == cluster & seu_doublets$scDblFinder.class == 'doublet') /
+                                      sum(seu_doublets$RNA_snn_res.0.4 == cluster))
+
+names(cluster_doublet_fractions > 2*sum(seu_doublets$scDblFinder.class=='doublet')/ncol(seu_doublets))[cluster_doublet_fractions > 2*sum(seu_doublets$scDblFinder.class=='doublet')/ncol(seu_doublets)] 
+```
+
+```{r}
+p1 <- DimPlot(seu_doublets, group.by = "predicted.celltype.l2", raster=F, label = T, label.size = 2,  repel = T) +
+  ggtitle("Doublets included")
+
+p2 <- DimPlot(seu_doublets[, seu_doublets$RNA_snn_res.0.4 %in% c("12", "14", "15", "16", "18", "19", "21", "22", "25", "27", "28")], group.by = "predicted.celltype.l2", raster=F, label = T, label.size = 2, repel = T) +
+  xlim(-15,15) +
+  ylim(-15,15) +
+  ggtitle("Doublet clusters")
+
+p3 <- DimPlot(seu, group.by = "predicted.celltype.l2", label = T, label.size = 2, repel = T) + 
+  ggtitle("Singlets only") 
+
+pdef <- (p1 | p2 | p3) & 
+  NoLegend() & 
+  theme(axis.text = element_blank(), axis.title = element_blank(), axis.ticks =  element_blank())
+```
+
+```{r}
+((pa | pb | pc) / pdef) +  plot_annotation(tag_levels = 'a')
+```
+
+# Downsampling experiment
+
+Randomly subsample doublet object to make it same size as singlets only object. This step takes a long time. 
+```{r}
+for(i in 1:10) {
+  seu_downsample <- seu_doublets[, sample.int(n = ncol(seu_doublets), size = ncol(seu))]
+  seu_downsample <- NormalizeData(seu_downsample, verbose = F) %>%
+  FindVariableFeatures(nfeatures = 2000, verbose = F) %>%
+  ScaleData(verbose = F) %>%
+  RunPCA(dims = 1:30, verbose = F) %>%
+  RunUMAP(dims = 1:30, verbose = F) %>% 
+  FindNeighbors(reduction = "pca", dims = 1:30) %>%
+  FindClusters(resolution = seq(0.1, 1, by = 0.1), algorithm = 3)
+  saveRDS(seu_downsample, here("data", "10X_PBMC_16plex", "SEU",
+             paste0("10X_PBMC.CellRanger.decontX.mito.filter.Azimuth.downsample", as.character(i),".SEU.rds")))
+}
+```
+
+```{r}
+p1 <- ggplot(seu_downsample@meta.data, aes(x = RNA_snn_res.0.4, fill = scDblFinder.class)) + 
+  geom_bar() + NoLegend()
+
+p2 <- ggplot(seu_downsample@meta.data, aes(x = RNA_snn_res.0.4, fill = scDblFinder.class)) + 
+  geom_bar(position = 'fill') 
+  
+(p1 | p2) &
+  xlab("Cluster")
+```
+
+Make a dataframe to store the summary level information from each of the downsampled runs
+```{r}
+cluster_res <- c(seq(0.1,0.9,0.1),1)
+n_clusters = NULL
+doublet_fraction = NULL
+mean_doublet_fraction = sum(seu_doublets$scDblFinder.class == 'doublet') / ncol(seu_doublets)
+
+for (i in 1:10) {
+  seu_downsample <- readRDS(here("data", "10X_PBMC_16plex", "SEU",
+             paste0("10X_PBMC.CellRanger.decontX.mito.filter.Azimuth.downsample", as.character(i),".SEU.rds")))
+  n_clusters = cbind(n_clusters, sapply(cluster_res, function(i) length(levels(unlist(seu_downsample[[paste0("RNA_snn_res.",i)]])))))
+  
+  doublet_fraction <- c(doublet_fraction, 
+                        sum(sapply(unique(seu_downsample$RNA_snn_res.0.4), function(c) sum(seu_downsample$RNA_snn_res.0.4 == c & seu_downsample$scDblFinder.class == 'doublet') / sum(seu_downsample$RNA_snn_res.0.4 == c)) > 2*mean_doublet_fraction))
+}
+```
+
+```{r}
+temp <- n_clusters
+```
+
+```{r}
+mean_clusters <- apply(temp, 1, mean)
+sd_cluster <- apply(temp, 1, sd)
+downsample_df <- data.frame(resolution = cluster_resolutions,
+                            mean = mean_clusters,
+                            ymin = mean_clusters - sd_cluster,
+                            ymax = mean_clusters + sd_cluster)
+
+```
+
+```{r}
+cluster_resolutions <- c(seq(0.1,0.9,0.1),1)
+cluster_df <- data.frame(resolution = cluster_resolutions,
+                 Singlets = sapply(cluster_resolutions, function(i) length(levels(unlist(seu[[paste0("RNA_snn_res.",i)]])))),
+                 Doublets = sapply(cluster_resolutions, function(i) length(levels(unlist(seu_doublets[[paste0("RNA_snn_res.",i)]])))),
+                 Downsampled = mean_clusters) %>%
+  pivot_longer(cols = c(Singlets, Doublets, Downsampled)) 
+```
+
+```{r}
+ggplot(cluster_df) +
+  geom_point(aes(x = resolution, y = value, color = name, shape = name)) +
+  xlab('Cluster resoltuion') +
+  ylab('N clusters') +
+  theme(legend.title = element_blank())
+  #geom_errorbar(data = downsample_df, aes(x = resolution, y = mean, ymin = ymin, ymax = ymax))
+```
+
+```{r}
+temp <- as.data.frame(temp)
+rownames(temp) <- seq(0.1,1,0.1)
+colnames(temp) <- paste0("Run ", as.character(1:10))
+temp <- temp %>%
+  pivot_longer(cols = 1:10)
+```
+
+
+
