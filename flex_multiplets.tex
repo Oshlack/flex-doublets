@@ -129,7 +129,10 @@
 	As single-cell RNA-sequencing (scRNA-seq) experiments grow in scale, performing separate captures for individual samples becomes prohibitively expensive. 
 	Pooling multiple samples in a single experiment both reduces cost and minimises batch effects, but introduces a new problem – how to associate individual cells with their sample of origin. 
 	A common method involves tagging the samples with either antibody or lipid-linked unique oligo barcodes prior to pooling. 
-	These ``hashtag'' oligos attach to either proteins or lipids on the cell surface and can be sequenced along with the gene expression, and various methods have been developed to identify the sample of origin from the expression counts of the hashtags 
+	These ``hashtag'' oligos attach to either proteins
+	\citep{Stoeckius2018} 
+	or lipids \citep{McGinnis2019}
+	on the cell surface and can be sequenced along with the gene expression, and various methods have been developed to identify the sample of origin from the expression counts of the hashtags 
 	\citep{Howitt2023}.
 	However, hashtag-based multiplexing has several drawbacks. 
 	Firstly, tagging introduces an additional step into the sample preparation workflow, and may be more challenging for certain tissue types. 
@@ -148,7 +151,7 @@
 	The Flex protocol from 10X Genomics addresses both of the above issues by using barcoded gene-specific probes that hybridise to individual RNA molecules in the cell. 
 	These barcodes can include an oligo that identifies a specific sample, with available kits containing 4 and 16 unique sample barcodes. 
 	The uniquely barcoded gene probes are added to each sample prior to pooling. 
-	Probe hybridisation is then followed by encapsulation within droplets containing GEMs (Gel beads-in-emulsion) bead similar to other 10X droplet-based protocols. 
+	Probe hybridisation is then followed by encapsulation within droplets containing GEMs (Gel beads-in-emulsion) similar to other 10X droplet-based protocols. 
 	After sequencing, each read then includes a barcode from both the sample of origin as well as the droplet, allowing immediate demultiplexing of pooled samples and resolution of multiplets from distinct samples within the same droplet. 
 	This removes the need for separate hashtag-staining and demultiplexing steps in the scRNA-seq workflow, and the resolution of multiplets allows for higher throughput in the library preparation stage. 
 	Consequently, according to the manufacturer, up to 128,000 cells from up to 16 samples can be run on a single lane of a Chromium X instrument 
@@ -216,7 +219,7 @@
 	%
 	For this data, scDblFinder (Figure \ref{fig:doublet_finder_comparison}a) clearly outperforms the scds methods (Figure \ref{fig:doublet_finder_comparison} b-d), with 90\% of the multiply-occupied droplets called as doublets compared to only 25\%-40\%. 
 	22\% of droplets containing two cells are called singlets by scDblFinder. 
-	Doublet-finding methods are known to perform poorly on droplets containing multiple cells from the same type (homotypic doublets), as these are unlikely to show discrepant transcription profiles
+	Doublet-finding methods are known to perform poorly on droplets containing multiple cells of the same type (homotypic doublets), as these are unlikely to show discrepant transcription profiles
 	\citep{Xiong2022, Neavin2024}.
 	We use the reference mapping package Azimuth and its included PBMC reference data set to annotate the PBMC data set
 	\citep{Hao2021},
@@ -410,7 +413,7 @@
 	\citep{10X_flex_protocol}. 
 	We propose two potential reasons for this discrepancy. 
 	The first is the assumption that the true occupancy distribution is the same as the observed distribution, equation \ref{eq:pdf approximation}.
-	The presence of unresolvable cells implies that the true occupancy is always greater than that observed, see \textbf{Supplementary Figure 3}.
+	The presence of unresolvable cells implies that the true occupancy is always greater than that observed, see Supplementary Figure 3.
 	%
 %	\begin{figure}
 %		\begin{center}
@@ -430,7 +433,7 @@
 	Finally, in Figure \ref{fig:doublet_finder_comparison}b we observe that scDblFinder calls 2060 of the droplets in the PBMC data set identified as singlets by CellRanger as doublets. 
 	We can estimate the number of observed singlets that are actually doublets using equation \eqref{eq:resolvable fraction} and the observed distribution of droplet occupancies. 
 	From this, we estimate that $\sim$ 2700 droplets with occupancy $k > 1$ will appear as singlets in this data set. 
-	Most of these will have $k=2$ (2 cells, 2400 droplets), but some droplets can contain more cells from the same sample (\textbf{Supplementary Figure 2}). 
+	Most of these will have $k=2$ (2 cells, 2400 droplets), but some droplets can contain more cells from the same sample (Supplementary Figure 2). 
 	The number predicted by the model is similar to the value of 2,060 from scDblFinder, with the discrepancy likely due to the difficulty of scDblFinder in identifying homotypic doublets, shown in Figures \ref{fig:doublet_finder_comparison}b) and e).
 	
 	\subsection{Doublet-finding identifies spurious clusters}
@@ -456,7 +459,7 @@
 		
 	We next look at the doublet composition of the identified cluster at resolution 0.4, (Figures \ref{fig:doublet_clusters}b and c). 
 	We identify 11 clusters that contain more than twice the average doublet fraction of the entire data set. 
-	 We show the position of all cells in the data set prior to doublet removal, labelled by their Azimuth annotations, on a Uniform Manifold Approximation and Projection (UMAP) plot in Figure \ref{fig:doublet_clusters}d. 
+	 We show the position of all cells in the data set prior to doublet removal, las annotated by Azimuth, on a Uniform Manifold Approximation and Projection (UMAP) plot in Figure \ref{fig:doublet_clusters}d. 
 	 Figure \ref{fig:doublet_clusters}e shows only the cells in the 11 clusters identified as being composed of mostly doublets.
 	 Figures \ref{fig:doublet_clusters}d and e show that these doublet-dominated clusters appear in the regions of the UMAP that bridge multiple cell types, such as CD14 and CD16 monocytes, or T cells and NK cells, lending further evidence for their identity as doublets. 
 	 Version (1) of the PBMC data  contains 52,336 more cells than version (2), which may be responsible for the greater number of clusters. 
@@ -476,7 +479,7 @@
 	This includes doublet finders previously developed for 3' data sets.
 		
 	We verify that the predictions of scDblFinder are accurate by aggregating the droplet counts across the sample barcodes, a novel approach that will prove useful in future benchmarking studies of doublet-finding algorithms. 
-	We then propose a mathematical model for predicting the number of same-sample doublets in any droplet-based single-cell protocol with sample tagging, and find that the predictions of our model are much closer to the observed doublet rates in Flex experiments than the estimates from the user documentation. 
+	We then propose a mathematical model for predicting the number of same-sample doublets in any droplet-based single-cell protocol with sample barcodes, and find that the predictions of our model are much closer to the observed doublet rates in Flex experiments than the estimates from the user documentation. 
 	Importantly, we demonstrate that doublet removal improves downstream analysis by eliminating spurious cell clusters consisting primarily of doublets.
 	
 	
@@ -535,7 +538,12 @@
 	\label{acknowledgements}
 	
 	Data generation for the earlyAIR data set was performed by WEHI’s Cellular Genomics Projects Team, with sequencing performed by Stephen Wilcox and Sarah MacRaild and additional data generation by Casey J. A. Anttila and Ruvimbo Mishi.
-	We thank Professor Andrew Melatos for suggesting using partitions as a way to describe the distribution of cells within droplets. AO is supported by NHMRC … CZI funding …	
+	We thank Professor Andrew Melatos for suggesting using partitions as a way to describe the distribution of cells within droplets. 
+	
+	This project is supported by CZI Pediatric Networks for the Human Cell Atlas 2021-237883.
+	AO is supported by NHMRC Investigator grant (GNT1196256). 
+	JM is supported by NHMRC Investigator grant (GNT1187748). CZI funding 
+	
 	
 	\bibliographystyle{plain}
 	\bibliography{flex_multiplets} 
