@@ -23,7 +23,7 @@ library(cowplot)
 library(scales)
 library(readr)
 library(Seurat)
-library(Azimuth)
+library(partitions)
 library(Matrix)
 library(lubridate)
 library(scds)
@@ -51,17 +51,17 @@ doublet_fraction_10X <- function(Ncells, Nsamples = 16) {
 Plotting the scDblFinder doublet fraction vs number of cells, with the 10X prediction included
 ```{r}
 p1 <- ggplot(GEM_data) +
-  geom_point(aes(x = Ncells, y = Doublet_fraction, color = dataset)) +
-  geom_smooth(aes(x = Ncells, y = Doublet_fraction), method = 'lm', formula = y~x) +
+  geom_point(aes(x = ncells, y = doublets_scDblFinder, color = dataset)) +
+  geom_smooth(aes(x = ncells, y = doublets_scDblFinder), method = 'lm', formula = y~x +0) +
   xlab("Number of cells") +
   ylab("Doublet fraction (scDblFinder)") + 
-  geom_function(fun = function(Ncells) doublet_fraction_10X(Ncells), linetype = 'dashed')  
+  geom_function(fun = function(ncells) doublet_fraction_10X(ncells), linetype = 'dashed')  
 p1
 ```
 
 What is the fit to the observed values?
 ```{r}
-coef(lm(GEM_data$Doublet_fraction~GEM_data$Ncells)) * 100000
+coef(lm(GEM_data$doublets_scDblFinder~GEM_data$ncells + 0)) * 100000
 ```
 
 # Computing unresolvable cell fraction
@@ -291,11 +291,9 @@ resFrac <- function(X, n = 16) {
 ```
 
 
+n = 4
 ```{r}
-df <- data.frame(x = seq(1.1,2.5,0.01), 
-                    f = sapply(seq(1.1,2.5,0.01), function(x) resFrac(x, 4)))
-
-p1 <- ggplot(df, aes(x = x)) + 
+p1 <- ggplot() + 
   geom_function(fun = function(x) Vectorize(resFrac)(x, 4)) +
   xlim(c(1.1,2.5)) +
   ylim(c(0.,0.5)) +
@@ -303,19 +301,31 @@ p1 <- ggplot(df, aes(x = x)) +
   theme(axis.title.x = element_blank()) +
   ggtitle("4-plex")
 
-p2 <- ggplot(GEM_data, aes(x = Mean_occupancy, y = Doublet_fraction, color = dataset)) +
-  geom_point() +
-  xlim(c(1.1,2.5)) +
-  ylim(c(0.,0.5)) +
-  geom_function(fun = function(Mean_occupancy) Vectorize(resFrac)(Mean_occupancy), 
-                color = 'black') +
-  xlab("Mean droplet occupancy") +
-  ylab("Doublet fraction") +
-  ggtitle("16-plex")
-
-(p1 / p2) + plot_annotation(tag_levels = 'a') & theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-panel.background = element_blank(), axis.line = element_line(colour = "black"))
+p1
 ```
+16-plex
+```{r}
+p1 <- ggplot(GEM_data %>%
+               pivot_longer(cols = c("doublets_10X", "doublets_scDblFinder"), values_to = 'doublet_fraction', names_to = 'method')) +
+  geom_point(aes(x = mean_occupancy, y = doublet_fraction, color = dataset, shape = method)) +
+  labs(x = "Mean droplet occupancy", y = "Doublet fraction", shape = "Method", color = "Data set") + 
+  scale_shape_manual(values = c(4,19), labels = c("Flex docs estimate", "scDblFinder")) +
+  xlim(c(1.1,2.5)) +
+  ylim(c(0.,0.21)) +
+  geom_function(fun = function(mean_occupancy) Vectorize(resFrac)(mean_occupancy), 
+                color = 'black') 
+
+p1
+```
+
+Which values are closer to the curve?
+```{r}
+abs(GEM_data$doublets_theory - GEM_data$doublets_scDblFinder) > abs(GEM_data$doublets_theory - GEM_data$doublets_10X)
+abs(GEM_data$doublets_10X - GEM_data$doublets_scDblFinder)^2 > abs(GEM_data$doublets_theory - GEM_data$doublets_scDblFinder)^2
+abs(doublet_frac_wide$doublets_10X - doublet_frac_wide$scDblFinder_nodbr) > abs(doublet_frac_wide$doublet_theory - doublet_frac_wide$scDblFinder_nodbr)
+
+```
+
 
 # Apparent occupancy
 

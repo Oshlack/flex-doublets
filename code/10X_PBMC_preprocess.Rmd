@@ -24,9 +24,9 @@ suppressPackageStartupMessages({
   library(scales)
   library(readr)
   library(Seurat)
-  library(celda)
+  #library(celda)
   library(decontX)
-  library(Azimuth)
+  #library(Azimuth)
   library(Matrix)
   library(scDblFinder)
   library(scMerge)
@@ -43,7 +43,7 @@ batch_samples <- c("01_BC1_AB1", "02_BC2_AB2", "03_BC3_AB3", "04_BC4_AB4", "05_B
 Helper functions for reading the per-sample counts into a SingleCellExperiment object.
 ```{r}
 make_filtered_sce <- function(sample_name) {
-  counts <- Read10X_h5(here("data", "10X_PBMC_16plex", "HDF5", 
+  counts <- Read10X_h5(here("../flex_multiplets/data", "10X_PBMC_16plex", "HDF5", 
                           paste0("16plex_human_PBMC_TotalSeqC_multiplex_PBMC_", sample_name,
                                  "_count_sample_filtered_feature_bc_matrix.h5")))$`Gene Expression`
   sce <- SingleCellExperiment(assays = c("counts" = counts))
@@ -120,10 +120,12 @@ Run scDblFinder
 ```{r}
 bp <- MulticoreParam(8, RNGseed=56213)
 sce <- scDblFinder(sce, clusters = T,
-                   BPPARAM=bp)
+                   BPPARAM=bp, 
+                   dbr.sd = 1,) #dbr.sd = 1 does not assume the doublet rate, this has changed since v1 of paper. 
+                   samples = sce$sample_barcode)
 ```
 ```{r}
-table(sce$scDblFinder.class)
+doublets_no_samples <- sce$scDblFinder.class
 ```
 
 Make Seurat object
