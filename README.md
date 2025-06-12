@@ -2,6 +2,8 @@
 
 This repository contains code to perform the analysis from the pre-print "More cells, more doublets in highly multiplexed single-cell data". 
 
+This pre-print has now been withdrawn. Please see details on [biorxiv](https://www.biorxiv.org/content/10.1101/2024.10.03.616596v1) 
+
 The public 16-plex PBMC data is available from [10X](https://www.10xgenomics.com/datasets/128k-human-pbmcs-stained-with-totalseqc-human-universal-cocktail)
 
 Summarised data for the earlyAIR data set is available in the [data folder](data)
